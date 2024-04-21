@@ -364,7 +364,10 @@ define function publish-release
   if (cat-package)
     // Include the releases from the existing package when we write the file.
     // new-package was created by loading dylan-package.json, and doesn't have
-    // any of the existing releases in it.
+    // any of the existing releases in it. Doing it this way, instead of adding
+    // the new-package release and attributes to cat-package, allows optional
+    // package-level attributes to be removed by removing them from
+    // dylan-package.json.
     for (rel in package-releases(cat-package))
       add-release(new-package, rel);
     end;
