@@ -1,7 +1,7 @@
 .. highlight:: shell
 
 ********************
-Deft - The Dylan CLI
+deft - The Dylan CLI
 ********************
 
 The :program:`deft` command-line tool is intended to make Dylan development
