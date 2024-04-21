@@ -62,9 +62,8 @@ Where are Packages Installed?
 directory at the root of your workspace by default.  However, you may choose to
 install them globally with :command:`deft update --global`.
 
-The package manager always caches `its catalog
-<https://github.com/dylan-lang/pacman-catalog>`_ in the global location (per
-user).
+The package manager always caches `its catalog <pacman-catalog>`_ in the global
+location (per user).
 
 The global :file:`_packages` directory location is chosen based on environment
 variables, in this order:
@@ -642,15 +641,15 @@ catalog.
 Synopsis: ``deft publish <pacman-catalog-directory>``
 
 .. note:: For now, until a fully automated solution is implemented, the publish
-   command works by modifying a local copy of the catalog so that you can
-   manually submit a pull request. This eliminates a lot of possibilities for
-   making mistakes while editing the catalog by hand.
+   command works by modifying a local copy of the `pacman-catalog`_ Git
+   repository and you must manually submit a pull request with the changes. In
+   a future release this manual step will be eliminated.
 
 This command publishes a package associated with the current workspace. It
-searches up from the current directory to find :file:`dylan-package.json`. Note
-that this means you can't be in the root of a multi-package workspace. Once
-you're satisfied that you're ready to release a new version of your package
-(tests pass, doc updated, etc.) follow these steps:
+searches up from the current directory to find
+:file:`dylan-package.json`. *Note that this means you can't be in the root of a
+multi-package workspace.* Once you're satisfied that you're ready to release a
+new version of your package (tests pass, doc updated, etc.) follow these steps:
 
 #.  Update the ``"version"`` attribute in :file:`dylan-package.json` to be the
     new release's version.
@@ -661,33 +660,37 @@ you're satisfied that you're ready to release a new version of your package
     **Remember to** `deft update`_ **and re-run your tests if you change
     deps!**
 
-    Push the above changes (if any) to your main branch.
+    Push the above changes, if any, to your main branch.
 
 #.  Make a new release on GitHub with a tag that matches the release version.
     For example, if the ``"version"`` attribute in :file:`dylan-package.json`
     is ``"0.5.0"`` the GitHub release should be tagged ``v0.5.0``.
 
 #.  Clone https://github.com/dylan-lang/pacman-catalog somewhere and create a
-    new branch named after your package. ::
+    new branch. ::
 
       $ cd /tmp
       $ git clone https://github.com/dylan-lang/pacman-catalog
       $ cd pacman-catalog
       $ git switch -t -c my-package
 
-    In the next step the `deft publish`_ command will make changes there for
-    you.
+    In the next step the `deft publish`_ command will make changes in this
+    directory for you.
 
 #.  Run :command:`deft publish /tmp/pacman-catalog`, pointing to where you
     just cloned the pacman catalog.
 
 #.  Commit the changes to `pacman-catalog`_ and submit a pull request.  The
-    tests to verify the catalog will be run automatically by the GitHub CI.
+    tests to verify the catalog will be run automatically by a GitHub workflow.
 
 #.  Once your PR has been merged, verify that the package is available in the
     catalog by running :command:`deft install my-package@0.5.0`, substituting
     your new package name and release version.
 
+.. note:: If you remove `optional package attributes
+          <pacman.html#optional-package-attributes>`_ from
+          :file:`dylan-package.json` they will be removed from the catalog
+          entry for *all releases* of your package.
 
 .. index::
    single: deft status subcommand
