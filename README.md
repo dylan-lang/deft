@@ -1,7 +1,7 @@
-# Dylan Tool
+# Deft
 
-[![tests](https://github.com/dylan-lang/dylan-tool/actions/workflows/test.yaml/badge.svg)](https://github.com/dylan-lang/dylan-tool/actions/workflows/test.yaml)
-[![GitHub issues](https://img.shields.io/github/issues/dylan-lang/dylan-tool?color=blue)](https://github.com/dylan-lang/dylan-tool/issues)
+[![tests](https://github.com/dylan-lang/deft/actions/workflows/test.yml/badge.svg)](https://github.com/dylan-lang/deft/actions/workflows/test.yml)
+[![GitHub issues](https://img.shields.io/github/issues/dylan-lang/deft?color=blue)](https://github.com/dylan-lang/deft/issues)
 [![Matrix](https://img.shields.io/matrix/dylan-lang-general:matrix.org?color=blue&label=Chat%20on%20Matrix&server_fqdn=matrix.org)](https://app.element.io/#/room/#dylan-language:matrix.org)
 
 * Package management
@@ -10,13 +10,13 @@
 * No more Git submodules
 * Build/test from anywhere in your workspace
 
-The `dylan` tool simplifies the management of Dylan workspaces and packages and
+Deft simplifies the management of Dylan workspaces and packages and
 provides a simplified interface to the Open Dylan compiler for building and
 (soon) testing, and generating documentation. It eliminates the need to manage
 library locations (registries) by hand and the need to use git submodules to
 track dependencies.
 
-    $ dylan new application hello
+    $ deft new application hello
     Downloaded pacman-catalog@master to /tmp/dylan/_packages/pacman-catalog/master/src/
     Created library hello.
     Created library hello-test-suite.
@@ -29,7 +29,7 @@ track dependencies.
 
     $ cd hello
 
-    $ dylan build --all
+    $ deft build --all
     Open Dylan 2023.1
     Build of 'hello-test-suite' completed
     Build of 'hello-app' completed
@@ -45,9 +45,9 @@ repository. For any package to be downloadable it must have an entry in the
 catalog.
 
 Full documentation is
-[here](https://opendylan.org/package/dylan-tool).
+[here](https://opendylan.org/package/deft).
 
 ## Bugs
 
 If you have a feature request, think something should be designed differently, or find
-bugs, [file a bug report](https://github.com/dylan-lang/dylan-tool/issues).
+bugs, [file a bug report](https://github.com/dylan-lang/deft/issues).

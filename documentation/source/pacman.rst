@@ -8,7 +8,7 @@ Pacman is the Dylan package manager library. It knows how to find packages in
 the `catalog`_, install them, and how to resolve dependencies between them.
 
 This documentation describes the package model and how versioned dependencies
-are resolved. Users generally manage workspaces and packages via `the dylan
+are resolved. Users generally manage workspaces and packages via `the deft
 command`_.
 
 
@@ -78,11 +78,12 @@ The Package File - dylan-package.json
 Packages are described by a ``dylan-package.json`` file in the package's
 top-level directory. This file contains the name, description, dependencies,
 and other metadata for the package. Let's look at the ``dylan-package.json``
-file for ``dylan-tool`` itself::
+file for :program:`deft` itself::
 
     {
-        "name": "dylan-tool",
-        "version": "0.6.0",
+        "name": "deft",
+        "version": "0.1.0",
+        "license": "MIT",
         "category": "language-tools",
         "contact": "dylan-lang@googlegroups.com",
         "description": "Manage Dylan workspaces, packages, and registries",
@@ -91,13 +92,14 @@ file for ``dylan-tool`` itself::
             "command-line-parser@3.1.1",
             "json@1.0",
             "logging@2.1",
-            "regular-expressions@1.0",
+            "regular-expressions@0.2",
             "uncommon-dylan@0.2"
         ],
         "dev-dependencies": [
-            "testworks@2.0"
+            "sphinx-extensions",
+            "testworks"
         ],
-        "url": "https://github.com/dylan-lang/dylan-tool"
+        "url": "https://github.com/dylan-lang/deft"
     }
 
 Required Package Attributes
@@ -111,7 +113,7 @@ name
 description
   A brief description of the package intended to be displayed to users who are
   searching for the packages they need. In some contexts (for example the
-  :ref:`dylan-list` command) this may be truncated to only display the first
+  :ref:`deft-list` command) this may be truncated to only display the first
   sentence, or even less, so special care should be used when writing this part
   of the description.
 
@@ -159,7 +161,7 @@ license-url
 Dependency Resolution
 =====================
 
-When `the dylan command`_ is asked to update a workspace it asks ``pacman`` to
+When `the deft command`_ is asked to update a workspace it asks ``pacman`` to
 resolve the dependencies specified in the ``dylan-package.json`` file and to
 install the resolved versions of those packages. So how does ``pacman`` do the
 package resolution, especially if two packages depend on different versions of
@@ -248,7 +250,7 @@ Index and Search
 
 .. _minimal version selection: https://research.swtch.com/vgo-mvs
 .. _principles:        https://research.swtch.com/vgo-principles
-.. _the dylan command: https://opendylan.org/documentation/dylan-tool/
+.. _the deft command:  https://opendylan.org/documentation/deft/
 .. _Semantic version:  https://semver.org/spec/v2.0.0.html
 .. _Semantic versions: https://semver.org/spec/v2.0.0.html
 .. _SemVer 2.0:        https://semver.org/spec/v2.0.0.html

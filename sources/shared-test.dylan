@@ -1,4 +1,4 @@
-Module: dylan-tool-test-suite
+Module: deft-test-suite
 
 
 define function capture-standard-output

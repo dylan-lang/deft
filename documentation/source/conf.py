@@ -12,13 +12,13 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../_packages/sphinx-extensions/current/src/sphinxcontrib'))
+sys.path.insert(0, os.path.abspath('../../ext/sphinx-extensions/sphinxcontrib'))
 import dylan.themes as dylan_themes
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'dylan-tool'
+project = 'deft'
 copyright = '2021, Dylan Hackers'
 
 

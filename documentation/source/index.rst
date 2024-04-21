@@ -1,10 +1,10 @@
 .. highlight:: shell
 
-**************
-``dylan`` Tool
-**************
+********************
+Deft - The Dylan CLI
+********************
 
-The :program:`dylan` command-line tool is intended to make Dylan development
+The :program:`deft` command-line tool is intended to make Dylan development
 easier by taking care of some of the drudgery for you, including:
 
 * managing Dylan workspaces and package dependencies
@@ -29,7 +29,7 @@ package
   versioned releases. A package may contain zero or more Dylan libraries.
 
 workspace
-  The directory in which the :program:`dylan` tool operates. Effectively this
+  The directory in which :program:`deft` operates. Effectively this
   means a workspace is where the :file:`_build` and :file:`registry`
   directories are generated. In most cases, a workspace is the directory
   containing the :file:`dylan-package.json` file, but the ultimate arbiter is
@@ -40,7 +40,7 @@ active package
   workspace is the same as a package directory so there is only one active
   package. See `Workspaces`_ for discussion of multi-package workspaces.
 
-  `dylan update`_ scans active packages when creating the registry.
+  `deft update`_ scans active packages when creating the registry.
 
 release
   A specific version of a package. A release has a `Semantic Version`_ associated
@@ -58,13 +58,16 @@ packages. (This dependency will be removed in a future release.)
 Where are Packages Installed?
 =============================
 
-The :program:`dylan` tool installs package dependencies locally in the
-workspace directory by default.  However, you may choose to install them
-globally with :command:`dylan update --global`.
+:program:`deft` installs package dependencies in the :file:`_packages`
+directory at the root of your workspace by default.  However, you may choose to
+install them globally with :command:`deft update --global`.
 
-The package manager caches `its catalog
-<https://github.com/dylan-lang/pacman-catalog>`_ into a global location per
-user. This location is chosen based on environment variables, in this order:
+The package manager always caches `its catalog
+<https://github.com/dylan-lang/pacman-catalog>`_ in the global location (per
+user).
+
+The global :file:`_packages` directory location is chosen based on environment
+variables, in this order:
 
 1. ``${DYLAN}/_packages`` if :envvar:`DYLAN` is set.
 
@@ -80,26 +83,18 @@ user. This location is chosen based on environment variables, in this order:
 Building From Source
 ====================
 
-If you have **Open Dylan 2022.1 or later**, :program:`dylan` is already
-installed as part of that release. But the :program:`dylan` tool is still under
-active development and tends to move faster than the pace of Open Dylan
-releases, so you may want to build the latest version. Here's how....
-
-.. note:: Because an executable named "dylan" conflicts with the base Dylan
-   library during the build process, this library is named "dylan-tool". In
-   Open Dylan the executable is installed as :program:`dylan`, but here it is
-   installed as :program:`dylan-tool-app`. This way both can be used at the
-   same time, which is useful during development.
-
-   This documentation usually uses the name :program:`dylan`. Keep this in mind
-   if you follow any examples below.
+If you have **Open Dylan 2024.2 or later**, :program:`deft` is already
+installed as part of that release. (In all 2022 and 2023 releases and in 2024.1
+the tool was named :program:`dylan` but has now been renamed to
+:program:`deft`.) But :program:`deft` is still under active development so you
+may want to build the latest version. Here's how....
 
 #.  Read the `Requirements`_ section, above.
 
-#.  Clone and build the "dylan-tool" project::
+#.  Clone and build the "deft" project::
 
-        $ git clone --recursive https://github.com/dylan-lang/dylan-tool.git
-        $ cd dylan-tool
+        $ git clone --recursive https://github.com/dylan-lang/deft
+        $ cd deft
         $ make
         $ make test      # optional
         $ make install
@@ -108,7 +103,7 @@ releases, so you may want to build the latest version. Here's how....
     set ``$DYLAN``, make sure that ``$HOME/dylan/bin`` is on your ``$PATH``, as
     that is where the Makefile installs the executable.
 
-You should now be able to run `dylan-tool-app help`_ and go through the Hello
+You should now be able to run `deft-app help`_ and go through the Hello
 World example below.
 
 
@@ -134,14 +129,14 @@ project), and change to that directory::
 
 Now generate a new application library called "hello-world"::
 
-    $ dylan new application hello-world
+    $ deft new application hello-world
     Created library hello-world.
     Created library hello-world-test-suite.
     Created library hello-world-app.
-    Downloaded strings@1.1.0 to /home/you/dylan/hello-world/_packages/strings/1.1.0/src/
-    Downloaded command-line-parser@3.1.1 to /home/you/dylan/hello-world/_packages/command-line-parser/3.1.1/src/
-    Downloaded json@1.0.0 to /home/you/dylan/hello-world/_packages/json/1.0.0/src/
-    Downloaded testworks@2.3.1 to /home/you/dylan/hello-world/_packages/testworks/2.3.1/src/
+    Downloaded strings@1.1.0 to /home/you/dylan/workspaces/hello-world/_packages/strings/1.1.0/src/
+    Downloaded command-line-parser@3.1.1 to /home/you/dylan/workspaces/hello-world/_packages/command-line-parser/3.1.1/src/
+    Downloaded json@1.0.0 to /home/you/dylan/workspaces/hello-world/_packages/json/1.0.0/src/
+    Downloaded testworks@2.3.1 to /home/you/dylan/workspaces/hello-world/_packages/testworks/2.3.1/src/
     Workspace directory is /home/you/dylan/workspaces/hello-world/.
     Updated 18 files in /home/you/dylan/workspaces/hello-world/registry/.
 
@@ -149,7 +144,7 @@ What did this do?
 
 1. It created files with some initial code for your application, hello-world.
 2. It created a test suite.
-3. It ran ``dylan update``, which downloaded all the packages your application
+3. It ran ``deft update``, which downloaded all the packages your application
    depends on.
 4. It created a "registry" directory, which ``dylan-compiler`` will use to
    locate each used library.
@@ -164,7 +159,7 @@ a pointer to the build file (a ".lid" file) for a library.
 Now let's build! ::
 
     $ cd hello-world
-    $ dylan build --all
+    $ deft build --all
     ...compiler output...
 
     $ _build/bin/hello-world
@@ -199,9 +194,9 @@ to this::
 
     "dependencies": [ "base64" ],
 
-and then run `dylan update`_ again::
+and then run `deft update`_ again::
 
-    $ dylan update
+    $ deft update
     Workspace directory is /home/you/dylan/workspaces/hello-world/.
     Updated 1 file in /home/you/dylan/workspaces/hello-world/registry/.
 
@@ -211,16 +206,16 @@ downloaded. Usually it's a good idea to specify a particular version, like
 was installed.
 
 We also haven't actually changed the hello-world code to use base64. That is
-left as an exercise. (Modify library.dylan and run ``dylan build -a`` again.)
+left as an exercise. (Modify :file:`library.dylan` and run ``deft build -a`` again.)
 
-Now that you've got a working project, try some other :program:`dylan`
+Now that you've got a working project, try some other :program:`deft`
 `subcommands`_, the most useful ones are:
 
-* `dylan status`_ tells you the status of the active packages. It will find the
+* `deft status`_ tells you the status of the active packages. It will find the
   ``hello-world`` package but will complain that it's not a Git repository. Run
   ``git init`` in it if you like.
 
-* `dylan list`_ with ``--all`` lists all the packages in the catalog. (Note
+* `deft list`_ with ``--all`` lists all the packages in the catalog. (Note
   that many libraries are still included with Open Dylan. They'll be moved to
   packages eventually.)
 
@@ -233,7 +228,7 @@ Workspaces
 ==========
 
 A workspace is a directory in which you work on a Dylan package, or multiple
-interrelated packages. The :program:`dylan` tool often needs to find the root
+interrelated packages. :program:`deft` often needs to find the root
 of the workspace, for example to decide where to write the "registry" directory
 or to invoke :program:`dylan-compiler`.  It does this by looking for one of the
 following files, in the order shown, and by using the directory containing the
@@ -264,10 +259,10 @@ multi-package workspace might look like this::
     my-workspace/package-2/*.dylan
     my-workspace/package-2/*.lid
     my-workspace/package-2/dylan-package.json
-    my-workspace/registry             // created by dylan tool
+    my-workspace/registry             // created by deft
     my-workspace/workspace.json       // created by you
 
-Most :program:`dylan` subcommands need to be run inside a workspace so that
+Most :program:`deft` subcommands need to be run inside a workspace so that
 they can
 
 * find or create the "registry" directory,
@@ -286,7 +281,7 @@ JSON dictionary, ``{}``.
    }
 
 The ``"default-library"`` attribute is currently the only valid attribute and
-is used by the `dylan build`_ command to decide which library to build when no
+is used by the `deft build`_ command to decide which library to build when no
 other library is specified. A good choice would be your main test suite
 library. It may also be left unspecified.
 
@@ -297,16 +292,16 @@ Open Dylan uses "registries" to locate used libraries. Setting up a development
 workspace historically involved a lot of manual Git cloning, creating registry
 files for each used library, and adding Git submodules.
 
-`dylan update`_ takes care of that for you. It scans each active package and
+`deft update`_ takes care of that for you. It scans each active package and
 its dependencies for ".lid" files and writes a registry file for each one (but
 see below for platform-specific libraries), and it downloads and installs
 package dependencies for you.
 
 .. note:: If you use the same workspace directory on multiple
           platforms (e.g., a network mounted directory or shared by a
-          virtual machine) you will need to run `dylan update`_ on
+          virtual machine) you will need to run `deft update`_ on
           **each** platform so that the correct platform-specific
-          registry entries are created.  The :program:`dylan` tool
+          registry entries are created.  :program:`deft`
           makes no attempt to figure out which packages are "generic"
           and which are platform-specific, so it always writes
           registry files specifically for the current platform, e.g.,
@@ -328,7 +323,7 @@ and only include it in that platform's LID file.
 To complicate matters, one LID file may include another LID file via the
 ``LID`` header.
 
-In order for `dylan update`_ to generate the registry it must figure out which
+In order for `deft update`_ to generate the registry it must figure out which
 LID files match the current platform. For example, when on Linux it shouldn't
 generate a registry file for a Windows-only library.
 
@@ -353,8 +348,7 @@ platform for that library, or you must use the ``Platforms`` header in the
 **included** LID file to specify all platforms that *don't* have a
 platform-specific LID file.
 
-For example, the base "dylan" library itself (not to be confused with the
-:program:`dylan` tool) has a `dylan-win32.lid
+For example, the base "dylan" library itself has a `dylan-win32.lid
 <https://github.com/dylan-lang/opendylan/blob/master/sources/dylan/dylan-win32.lid>`_
 file so that it can specify some Windows resource files. "dylan-win32.lid"
 includes "dylan.lid" and has ``Platforms: x86-win32``. Since there's nothing
@@ -370,16 +364,16 @@ platforms it explicitly applies to by adding this::
 Package Manager
 ===============
 
-The :program:`dylan` tool relies on :doc:`pacman`, the Dylan package manager
+:program:`deft` relies on :doc:`pacman`, the Dylan package manager
 (unrelated to the Arch Linux tool by the same name), to install dependencies.
 See :doc:`the pacman documentation <pacman>` for information on how to define a
 package, version syntax, and how dependency resolution works.
 
-Global ``dylan`` Options
-========================
+Global ``deft`` Options
+=======================
 
-Note that global command line options must be specified between "dylan" and the
-first subcommand name. Example: ``dylan --debug build --all``
+Note that global command line options must be specified between "deft" and the
+first subcommand name. Example: ``deft --debug build --all``
 
 ``--debug``
   Disables error handling so that when an error occurs the debugger will be
@@ -400,37 +394,37 @@ Subcommands
 
 
 .. index::
-   single: dylan help subcommand
-   single: subcommand; dylan help
+   single: deft help subcommand
+   single: subcommand; deft help
 
-.. _dylan-tool-app help:
+.. _deft-app help:
 
-dylan help
-----------
+deft help
+---------
 
 Displays overall help or help for a specific subcommand.
 
 Synopsis:
-  ``dylan help``
+  ``deft help``
 
-  ``dylan help <subcommand> [<sub-subcommand> ...]``
+  ``deft help <subcommand> [<sub-subcommand> ...]``
 
-  ``dylan <subcommand> [<sub-subcommand> ...] --help``
+  ``deft <subcommand> [<sub-subcommand> ...] --help``
 
 
 .. index::
-   single: dylan build subcommand
-   single: subcommand; dylan build
+   single: deft build subcommand
+   single: subcommand; deft build
 
-dylan build
------------
+deft build
+----------
 
 Build the configured default library or the specified libraries.
 
 Synopsis:
-  ``dylan build [options] [--all | lib1 lib2 ...]``
+  ``deft build [options] [--all | lib1 lib2 ...]``
 
-`dylan build`_ is essentially a wrapper around :program:`dylan-compiler` that
+`deft build`_ is essentially a wrapper around :program:`dylan-compiler` that
 has a few advantages:
 
 #. Invoke it from any directory inside your workspace and it will run the build
@@ -446,7 +440,7 @@ has a few advantages:
 #. Specify multiple libraries on one command line, unlike with
    :program:`dylan-compiler`.
 
-`dylan build`_ exits after the first library that generates serious compiler
+`deft build`_ exits after the first library that generates serious compiler
 warnings, i.e., if :program:`dylan-compiler` exits with an error
 status. (Requires an Open Dylan release later than 2020.1.)
 
@@ -475,15 +469,15 @@ status. (Requires an Open Dylan release later than 2020.1.)
   (Requires Open Dylan 2022.1 or later.)
 
 .. index::
-   single: dylan install subcommand
-   single: subcommand; dylan install
+   single: deft install subcommand
+   single: subcommand; deft install
 
-dylan install
--------------
+deft install
+------------
 
 Install packages.
 
-Synopsis: ``dylan install <package> [<package> ...]``
+Synopsis: ``deft install <package> [<package> ...]``
 
 This command is primarily useful if you want to browse the source code in a
 package locally without having to worry about where to clone it from. If you
@@ -492,13 +486,13 @@ are in a workspace directory the packages are installed in the workspace's
 
 
 .. index::
-   single: dylan list subcommand
-   single: subcommand; dylan list
+   single: deft list subcommand
+   single: subcommand; deft list
 
-.. _dylan-list:
+.. _deft-list:
 
-dylan list
-----------
+deft list
+---------
 
 Display a list of installed packages along with the installed version number
 and the latest version available in the catalog, plus a short description. With
@@ -510,56 +504,56 @@ installed version is lower than the latest published version.
 
 Example::
 
-   $ dylan list
+   $ deft list
         Inst.   Latest  Package               Description
         0.1.0    0.1.0  base64                Base64 encoding
       ! 3.1.0    3.2.0  command-line-parser   Parse command line flags and subcommands
         0.1.0    0.1.0  concurrency           Concurrency utilities
-        0.6.0    0.6.0  dylan-tool            Manage Dylan workspaces, packages, and registries
+        0.6.0    0.6.0  deft                  Manage Dylan workspaces, packages, and registries
         ...
 
 
 .. index::
-   single: dylan new application subcommand
-   single: subcommand; dylan new application
+   single: deft new application subcommand
+   single: subcommand; deft new application
 
-dylan new application
----------------------
+deft new application
+--------------------
 
 Generate the boilerplate for a new executable application.
 
-Synopsis: ``dylan new application [options] <name> [<dependency> ...]``
+Synopsis: ``deft new application [options] <name> [<dependency> ...]``
 
-This command is the same as `dylan new library`_ except that in addition to the
+This command is the same as `deft new library`_ except that in addition to the
 ``<name>`` library it also generates a ``<name>-app`` executable library with a
 ``main`` function.
 
 Here's an example of creating an executable named "killer-app" which depends on
 http version 1.0 and the latest version of logging. ::
 
-  $ dylan new application killer http@1.0 logging
-  $ dylan build --all
+  $ deft new application killer http@1.0 logging
+  $ deft build --all
   $ _build/bin/killer-test-suite
   $ _build/bin/killer-app
 
-You must run ``dylan update`` whenever dependencies are changed, to install the
+You must run ``deft update`` whenever dependencies are changed, to install the
 new dependencies and update the registry files.
 
-**See also:** `dylan new library`_
+**See also:** `deft new library`_
 
 
 .. index::
-   single: dylan new library subcommand
-   single: subcommand; dylan new library
+   single: deft new library subcommand
+   single: subcommand; deft new library
 
-dylan new library
------------------
+deft new library
+----------------
 
 Generate code for a new shared library.
 
-Synopsis: ``dylan new library [options] <name> [<dependency> ...]``
+Synopsis: ``deft new library [options] <name> [<dependency> ...]``
 
-This command is the same as `dylan new application`_ except that it doesn't
+This command is the same as `deft new application`_ except that it doesn't
 generate the corresponding ``<name>-app`` executable library.
 
 Specifying dependencies is optional. They should be in the same form as
@@ -572,10 +566,10 @@ This command generates the following code:
 * A :file:`dylan-package.json` file (unless this new library is being added to
   an existing package).
 
-You must run ``dylan update`` whenever dependencies are changed, to install
+You must run ``deft update`` whenever dependencies are changed, to install
 the new dependencies and update the registry files.
 
-**See also:** `dylan new application`_
+**See also:** `deft new application`_
 
 **Options:**
 
@@ -586,8 +580,8 @@ the new dependencies and update the registry files.
 Here's an example of creating a library named "http" which depends on "strings"
 version 1.0 and the latest version of "logging". ::
 
-  $ dylan new library http strings@1.0 logging
-  $ dylan build --all
+  $ deft new library http strings@1.0 logging
+  $ deft build --all
   $ _build/bin/killer-app-test-suite
 
 Edit the generated :file:`dylan-package.json` file to set the repository URL,
@@ -595,20 +589,20 @@ description, and other attributes for your package.
 
 
 .. index::
-   single: dylan new workspace subcommand
-   single: subcommand; dylan new workspace
+   single: deft new workspace subcommand
+   single: subcommand; deft new workspace
 
-dylan new workspace
--------------------
+deft new workspace
+------------------
 
 Create a new workspace.
 
-Synopsis: ``dylan new workspace [options] <name>``
+Synopsis: ``deft new workspace [options] <name>``
 
 .. note:: In most cases there is no need to explicitly create a workspace since
           the package directory (the directory containing
           :file:`dylan-package.json`) will be used as the workspace by
-          :program:`dylan` subcommands if no workspace.json file is
+          :program:`deft` subcommands if no workspace.json file is
           found. Explicit workspaces are mainly needed when working on multiple
           interrelated packages at the same time.
 
@@ -618,34 +612,34 @@ Synopsis: ``dylan new workspace [options] <name>``
   Create the workspace under this directory instead of in the current working
   directory.
 
-`dylan new workspace`_ creates a new workspace directory and initializes it
+`deft new workspace`_ creates a new workspace directory and initializes it
 with a :file:`workspace.json` file. The workspace name is the only required
 argument. Example::
 
-  $ dylan new workspace my-app
+  $ deft new workspace my-app
   $ cd my-app
   $ ls -l
   total 8
   -rw-r--r-- 1 you you   28 Dec 29 18:03 workspace.json
 
 Clone repositories in the top-level workspace directory to create active
-packages (or create them with `dylan new library`_ and `dylan new
-application`_), then run `dylan update`_.
+packages (or create them with `deft new library`_ and `deft new
+application`_), then run `deft update`_.
 
 **See also:** `Workspaces`_
 
 
 .. index::
-   single: dylan publish subcommand
-   single: subcommand; dylan publish
+   single: deft publish subcommand
+   single: subcommand; deft publish
 
-dylan publish
--------------
+deft publish
+------------
 
 The "publish" subcommand adds a new release of a package to the package
 catalog.
 
-Synopsis: ``dylan publish <pacman-catalog-directory>``
+Synopsis: ``deft publish <pacman-catalog-directory>``
 
 .. note:: For now, until a fully automated solution is implemented, the publish
    command works by modifying a local copy of the catalog so that you can
@@ -664,7 +658,7 @@ you're satisfied that you're ready to release a new version of your package
     Also update any dependencies as needed. Normally this will happen naturally
     during development as you discover you need newer package versions, but
     this is a good time to review deps and update to get bug fixes if desired.
-    **Remember to** `dylan update`_ **and re-run your tests if you change
+    **Remember to** `deft update`_ **and re-run your tests if you change
     deps!**
 
     Push the above changes (if any) to your main branch.
@@ -681,30 +675,30 @@ you're satisfied that you're ready to release a new version of your package
       $ cd pacman-catalog
       $ git switch -t -c my-package
 
-    In the next step the `dylan publish`_ command will make changes there for
+    In the next step the `deft publish`_ command will make changes there for
     you.
 
-#.  Run :command:`dylan publish /tmp/pacman-catalog`, pointing to where you
+#.  Run :command:`deft publish /tmp/pacman-catalog`, pointing to where you
     just cloned the pacman catalog.
 
 #.  Commit the changes to `pacman-catalog`_ and submit a pull request.  The
     tests to verify the catalog will be run automatically by the GitHub CI.
 
 #.  Once your PR has been merged, verify that the package is available in the
-    catalog by running :command:`dylan install my-package@0.5.0`, substituting
+    catalog by running :command:`deft install my-package@0.5.0`, substituting
     your new package name and release version.
 
 
 .. index::
-   single: dylan status subcommand
-   single: subcommand; dylan status
+   single: deft status subcommand
+   single: subcommand; deft status
 
-dylan status
-------------
+deft status
+-----------
 
 Display the status of the current workspace.
 
-Synopsis: ``dylan status``
+Synopsis: ``deft status``
 
 **Options:**
 
@@ -716,36 +710,36 @@ Synopsis: ``dylan status``
 
 ::
 
-    $ dylan status
+    $ deft status
     Workspace: /home/cgay/dylan/workspaces/dt/
     Active packages:
       http                     : ## master...origin/master (dirty)
-      dylan-tool               : ## dev...master [ahead 2] (dirty)
+      deft                     : ## dev...master [ahead 2] (dirty)
       pacman-catalog           : ## publish...master [ahead 1] (dirty)
 
 
 .. index::
-   single: dylan update subcommand
-   single: dylan subcommand; update
-   single: subcommand; dylan update
+   single: deft update subcommand
+   single: deft subcommand; update
+   single: subcommand; deft update
    single: LID file
    single: active package
    single: dependencies
    single: workspace.json file
 
-dylan update
-------------
+deft update
+-----------
 
 Update the workspace based on the current set of active packages.
 
-Synopsis: ``dylan update``
+Synopsis: ``deft update``
 
 The "update" command may be run from anywhere inside a workspace directory and
 performs two actions:
 
 #.  Installs all active package dependencies, as specified in their
     :file:`dylan-package.json` files. Any time these dependencies are changed
-    you should run `dylan update`_ again.
+    you should run `deft update`_ again.
 
 #.  Updates the registry to have an entry for each library in the workspace's
     active packages or their dependencies.
@@ -764,28 +758,28 @@ performs two actions:
 
 **Example:**
 
-Create a workspace named ``dt``, with one active package, "dylan-tool", update
+Create a workspace named ``dt``, with one active package, "deft", update
 it, and build the test suite::
 
-   $ dylan new workspace dt
+   $ deft new workspace dt
    $ cd dt
-   $ git clone --recursive https://github.com/dylan-lang/dylan-tool
-   $ dylan update
-   $ dylan build dylan-tool-test-suite
+   $ git clone --recursive https://github.com/dylan-lang/deft
+   $ deft update
+   $ deft build deft-test-suite
 
 
 .. index::
-   single: dylan version subcommand
-   single: subcommand; dylan version
+   single: deft version subcommand
+   single: subcommand; deft version
 
-dylan version
--------------
+deft version
+------------
 
-Show the version of the :program:`dylan` command you are using. This is the Git
-version from which `dylan-tool <https://github.com/dylan-lang/dylan-tool>`_ was
+Show the version of the :program:`deft` command you are using. This is the Git
+version from which `deft <https://github.com/dylan-lang/deft>`_ was
 compiled.
 
-Synopsis: ``dylan version``
+Synopsis: ``deft version``
 
 
 Index and Search

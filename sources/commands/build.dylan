@@ -1,5 +1,5 @@
-Module: dylan-tool
-Synopsis: dylan build subcommand
+Module: deft
+Synopsis: build subcommand
 
 
 define class <build-subcommand> (<new-subcommand>)

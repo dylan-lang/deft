@@ -1,5 +1,5 @@
-Module: dylan-tool
-Synopsis: The `dylan publish` command publishes a package to the catalog.
+Module: deft
+Synopsis: The `publish` subcommand publishes a package to the catalog.
 
 
 define class <publish-subcommand> (<subcommand>)

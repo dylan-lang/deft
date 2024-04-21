@@ -1,4 +1,4 @@
-Module: dylan-tool-test-suite
+Module: deft-test-suite
 
 // Verify that dep names follow the same rules as package names.
 define test test-dep-name-validation ()

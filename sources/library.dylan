@@ -1,6 +1,6 @@
 Module: dylan-user
 
-define library dylan-tool
+define library deft
   use collections,
     import: { table-extensions };
   use command-line-parser;
@@ -18,7 +18,7 @@ define library dylan-tool
     import: { uncommon-dylan, uncommon-utils };
 
   export
-    dylan-tool,
+    deft,
     pacman,
     %pacman,
     shared,
@@ -209,7 +209,7 @@ define module %workspaces
     <registry>;
 end module;
 
-define module dylan-tool
+define module deft
   use command-line-parser;
   use file-system, prefix: "fs/";
   use format;
@@ -230,5 +230,5 @@ define module dylan-tool
   use workspaces, prefix: "ws/";
 
   export
-    dylan-tool-command-line;
+    deft-command-line;
 end module;

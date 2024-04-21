@@ -1,5 +1,5 @@
-Module: dylan-tool
-Synopsis: Utilities for use by dylan-tool commands
+Module: deft
+Synopsis: Utilities for use by deft commands
 
 
 // The Makefile replaces this string with the actual tagged version before
@@ -7,7 +7,7 @@ Synopsis: Utilities for use by dylan-tool commands
 // Using the comment markers enables recovery if someone commits a string
 // other than "HEAD" by accident. git's `ident` attribute doesn't use tag
 // names and `filter` looks more complex than it's worth.
-define constant $dylan-tool-version :: <string> = /*__*/ "HEAD" /*__*/;
+define constant $deft-version :: <string> = /*__*/ "HEAD" /*__*/;
 
 
 // Run an executable or shell command. `command` may be a string or a sequence

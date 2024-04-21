@@ -1,4 +1,4 @@
-Module: dylan-tool-test-suite
+Module: deft-test-suite
 
 define test test-find-release ()
   let versions = #("1.0.0", "2.0.0", "2.0.1", "2.1.0", "2.2.2", "3.0.0", "5.9.9");
