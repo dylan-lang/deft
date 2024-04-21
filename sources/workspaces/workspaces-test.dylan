@@ -1,4 +1,4 @@
-module: dylan-tool-test-suite
+module: deft-test-suite
 
 define test test-new ()
   let test-dir = test-temp-directory();
@@ -22,7 +22,7 @@ define test test-find-workspace-directory ()
 
   // Initially there is no workspace directory.
   let ws-dir = find-workspace-directory(bottom);
-  // On github this test runs inside the dylan-tool checkout, so there's
+  // On github this test runs inside the deft checkout, so there's
   // a dylan-package.json file outside the test-temp-directory(), hence
   // the prefix check. Succeed as long as the ws-dir is outside tmp.
   assert-true(~ws-dir

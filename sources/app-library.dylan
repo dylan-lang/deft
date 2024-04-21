@@ -1,19 +1,19 @@
 Module: dylan-user
 
 
-define library dylan-tool-app
+define library deft-app
   use common-dylan;
   use command-line-parser;
-  use dylan-tool;
+  use deft;
   use io;
   use logging;
   use system;
 end library;
 
-define module dylan-tool-app
+define module deft-app
   use common-dylan;
   use command-line-parser;
-  use dylan-tool;
+  use deft;
   use format-out;
   use logging;
   use operating-system, prefix: "os/";

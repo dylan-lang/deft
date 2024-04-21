@@ -1,4 +1,4 @@
-Module: dylan-tool
+Module: deft
 Synopsis: Create the initial boilerplate for new Dylan libraries and applications
 
 
@@ -22,7 +22,7 @@ define constant $deps-option
            " version. pkg@1.2 means a specific version. The test"
            " suite executable automatically depends on testworks.");
 
-// dylan new application foo http json ...
+// deft new application foo http json ...
 define constant $new-application-subcommand
   = make(<new-application-subcommand>,
          options:
@@ -41,7 +41,7 @@ define constant $new-application-subcommand
                      default: #f),
                 $deps-option));
 
-// dylan new library foo http json ...
+// deft new library foo http json ...
 define constant $new-library-subcommand
   = make(<new-library-subcommand>,
          options:

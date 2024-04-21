@@ -1,3 +1,3 @@
-Module: dylan-tool-test-suite
+Module: deft-test-suite
 
 run-test-application();

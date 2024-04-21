@@ -1,9 +1,9 @@
-Module: dylan-tool-app
-Synopsis: dylan-tool-app main function
+Module: deft-app
+Synopsis: deft-app main function
 
 
 define function main () => (status :: false-or(<integer>))
-  let parser = dylan-tool-command-line();
+  let parser = deft-command-line();
   block ()
     parse-command-line(parser, application-arguments());
     *debug?* := get-option-value(parser, "debug");

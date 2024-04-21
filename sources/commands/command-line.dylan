@@ -1,4 +1,4 @@
-Module: dylan-tool
+Module: deft
 Synopsis: Definition of the command-line as a whole
 
 
@@ -8,13 +8,13 @@ define class <new-subcommand> (<subcommand>)
   keyword help = "";
 end;
 
-define function dylan-tool-command-line
+define function deft-command-line
     () => (p :: <command-line-parser>)
   make(<command-line-parser>,
        help:
          format-to-string("Dylan dev swiss army knife - %s\n"
-                            "https://docs.opendylan.org/packages/dylan-tool/documentation/source/",
-                          $dylan-tool-version),
+                            "https://opendylan.org/package/deft/index.html",
+                          $deft-version),
        options:
          list(make(<flag-option>,
                    name: "verbose",

@@ -1,4 +1,4 @@
-Module: dylan-tool-test-suite
+Module: deft-test-suite
 
 // The low-level LID parsing is done by the file-source-records library so this
 // test is mainly concerned with whether parsing the LID: header works.

@@ -1,4 +1,4 @@
-library: dylan-tool-test-suite
+library: deft-test-suite
 files: test-suite-library.dylan
        test-utils.dylan
        shared-test.dylan

@@ -1,4 +1,4 @@
-Library: dylan-tool
+Library: deft
 Files: library.dylan
        shared.dylan
        pacman/utils.dylan

@@ -1,4 +1,4 @@
-Module: dylan-tool-test-suite
+Module: deft-test-suite
 
 // This test does an actual install, which requires the git command and network
 // access.

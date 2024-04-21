@@ -1,4 +1,4 @@
-Module: dylan-tool
+Module: deft
 Synopsis: Various command implementations not big enough to warrant their own file
 
 
@@ -222,7 +222,7 @@ end method;
 
 define class <version-subcommand> (<subcommand>)
   keyword name = "version";
-  keyword help = "Display the current version of dylan-tool.";
+  keyword help = "Display the current version of deft.";
 end class;
 
 define constant $version-subcommand = make(<version-subcommand>);
@@ -230,6 +230,6 @@ define constant $version-subcommand = make(<version-subcommand>);
 define method execute-subcommand
     (parser :: <command-line-parser>, subcmd :: <version-subcommand>)
  => (status :: false-or(<int>))
-  note("%s", $dylan-tool-version);
+  note("%s", $deft-version);
   0
 end method;

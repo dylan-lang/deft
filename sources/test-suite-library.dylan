@@ -1,15 +1,15 @@
 Module: dylan-user
 
-define library dylan-tool-test-suite
+define library deft-test-suite
   use common-dylan;
-  use dylan-tool;
+  use deft;
   use io;
   use strings;
   use system;
   use testworks;
 end library;
 
-define module dylan-tool-test-suite
+define module deft-test-suite
   use common-dylan;
   use file-system;
   use format;
