@@ -250,7 +250,7 @@ Index and Search
 
 .. _minimal version selection: https://research.swtch.com/vgo-mvs
 .. _principles:        https://research.swtch.com/vgo-principles
-.. _the deft command:  https://opendylan.org/documentation/deft/
+.. _the deft command:  https://opendylan.org/package/deft/
 .. _Semantic version:  https://semver.org/spec/v2.0.0.html
 .. _Semantic versions: https://semver.org/spec/v2.0.0.html
 .. _SemVer 2.0:        https://semver.org/spec/v2.0.0.html

@@ -314,7 +314,7 @@ Platform-specific Libraries
 
 Open Dylan supports multi-platform libraries via the registry and per-platform
 `LID files
-<https://opendylan.org/documentation/library-reference/lid.html>`_. Among other
+<https://opendylan.org/library-reference/lid.html>`_. Among other
 things, LID files tell the compiler which files to compile, and in which
 order. To write platform-specific code, put it in a separate Dylan source file
 and only include it in that platform's LID file.
