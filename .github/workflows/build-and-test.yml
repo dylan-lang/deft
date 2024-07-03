@@ -22,7 +22,7 @@ jobs:
         with:
           submodules: recursive
 
-      # Install dylan-compiler and dylan binaries in the current PATH.
+      # Install dylan-compiler and deft binaries in the current PATH.
       - uses: dylan-lang/install-opendylan@v3
 
       - name: Build and run test suite

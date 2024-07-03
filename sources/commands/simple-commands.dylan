@@ -2,7 +2,7 @@ Module: deft
 Synopsis: Various command implementations not big enough to warrant their own file
 
 
-/// dylan install
+/// deft install
 
 define class <install-subcommand> (<subcommand>)
   keyword name = "install";
@@ -36,7 +36,7 @@ define method execute-subcommand
 end method;
 
 
-/// dylan list
+/// deft list
 
 define class <list-subcommand> (<subcommand>)
   keyword name = "list";
@@ -116,7 +116,7 @@ define function list-catalog
 end function;
 
 
-/// dylan new workspace
+/// deft new workspace
 
 define class <new-workspace-subcommand> (<new-subcommand>)
   keyword name = "workspace";
@@ -142,7 +142,7 @@ define method execute-subcommand
 end method;
 
 
-/// dylan update
+/// deft update
 
 define class <update-subcommand> (<subcommand>)
   keyword name = "update";
@@ -164,7 +164,7 @@ define method execute-subcommand
 end method;
 
 
-/// dylan status
+/// deft status
 
 define class <status-subcommand> (<subcommand>)
   keyword name = "status";
@@ -218,7 +218,7 @@ define method execute-subcommand
 end method;
 
 
-/// dylan version
+/// deft version
 
 define class <version-subcommand> (<subcommand>)
   keyword name = "version";

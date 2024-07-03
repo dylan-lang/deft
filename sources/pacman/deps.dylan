@@ -67,7 +67,7 @@ end method;
 //   foo@feature    -- HEAD of the 'feature' branch
 //
 // TODO(cgay): I don't think "foo" or "foo@latest" should be supported at this level.  It
-// should probably be handled at the dylan-tool or workspaces level, and be explicitly
+// should probably be handled at the deft or workspaces level, and be explicitly
 // resolved to the latest <semantic-version> immediately.
 define function string-to-dep
     (input :: <string>) => (d :: <dep>)
@@ -135,7 +135,7 @@ define function resolve-deps
  => (releases :: <seq>)
   let cache = cache | make(<table>);
   local
-    // Use `dylan --debug --verbose update` to see this trace output.
+    // Use `deft --debug --verbose update` to see this trace output.
     method %trace (depth, return-value, fmt, #rest format-args)
       let indent = make(<string>, size: depth * 2, fill: ' ');
       apply(trace, concat(indent, fmt), format-args);

@@ -370,7 +370,7 @@ end method;
 // Find a release for a branch version. Branches are arbitrary; we simply assume the
 // branch exists and create a release for it.
 //
-// TODO(cgay): this is temporary while I attempt to bootstrap dylan-tool and
+// TODO(cgay): this is temporary while I attempt to bootstrap deft and
 // right now it only works for packages that exist in the catalog because we
 // need to find the location and deps. For now we find the latest release and
 // take the information from it, but that's obviously not always going to be
@@ -378,7 +378,7 @@ end method;
 // fully in the deps. So instead of just "pacman@my-branch" we would have
 // "https://gitlab.com/org/pacman@my-branch". That takes care of the location,
 // but what about the deps? Do we rely on it having a dylan-package.json file
-// and the user running `dylan update` again? That's terrible. Auto-detect
+// and the user running `deft update` again? That's terrible. Auto-detect
 // dylan-package.json after download, and recompute deps? Try and fetch the
 // dylan-package.json file right here? Assume no deps at all for branch
 // versions? Don't support branch versions at all and make the user checkout

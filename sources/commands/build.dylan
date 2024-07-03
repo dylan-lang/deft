@@ -7,7 +7,7 @@ define class <build-subcommand> (<new-subcommand>)
   keyword help = "Build the configured default libraries.";
 end class;
 
-// dylan build [--no-link --clean --unify] [--all | lib1 lib2 ...]
+// deft build [--no-link --clean --unify] [--all | lib1 lib2 ...]
 // Eventually need to add more dylan-compiler options to this.
 define constant $build-subcommand
   = make(<build-subcommand>,
