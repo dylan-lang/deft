@@ -27,9 +27,12 @@ build-with-version: remove-deft-artifacts
 	    dylan-compiler -build -unify deft-app; \
 	  cp -p $${orig} $${file}
 
+# Until the install-deft GitHub Action is no longer referring to deft-app
+# we also create a link named deft-app.
 really-install:
 	mkdir -p $(DYLAN)/bin
-	cp _build/sbin/deft-app $(DYLAN)/bin/
+	cp _build/sbin/deft-app $(DYLAN)/bin/deft
+	ln -f $(DYLAN)/bin/deft $(DYLAN)/bin/deft-app
 
 install: build-with-version really-install
 
