@@ -1,6 +1,6 @@
 # Deft
 
-[![tests](https://github.com/dylan-lang/deft/actions/workflows/test.yml/badge.svg)](https://github.com/dylan-lang/deft/actions/workflows/test.yml)
+[![tests](https://github.com/dylan-lang/deft/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/dylan-lang/deft/.github/workflows/build-and-test.yml)
 [![GitHub issues](https://img.shields.io/github/issues/dylan-lang/deft?color=blue)](https://github.com/dylan-lang/deft/issues)
 [![Matrix](https://img.shields.io/matrix/dylan-lang-general:matrix.org?color=blue&label=Chat%20on%20Matrix&server_fqdn=matrix.org)](https://app.element.io/#/room/#dylan-language:matrix.org)
 
