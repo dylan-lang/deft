@@ -102,8 +102,7 @@ may want to build the latest version. Here's how....
     set ``$DYLAN``, make sure that ``$HOME/dylan/bin`` is on your ``$PATH``, as
     that is where the Makefile installs the executable.
 
-You should now be able to run `deft-app help`_ and go through the Hello
-World example below.
+You should now be able to run `deft help`_ and go through the Hello World example below.
 
 
 Quick Start
@@ -146,7 +145,7 @@ What did this do?
 3. It ran ``deft update``, which downloaded all the packages your application
    depends on.
 4. It created a "registry" directory, which ``dylan-compiler`` will use to
-   locate each used library.
+   locate dependencies.
 
 Take a look at the generated files in the "hello-world" subdirectory. In
 particular, :file:`hello-world/dylan-package.json` describes a Dylan package,
@@ -199,10 +198,9 @@ and then run `deft update`_ again::
     Workspace directory is /home/you/dylan/workspaces/hello-world/.
     Updated 1 file in /home/you/dylan/workspaces/hello-world/registry/.
 
-Note that we didn't specify a version for "base64", so the latest version is
-downloaded. Usually it's a good idea to specify a particular version, like
-"base64\@0.1". Take a look at "registry/<your-platform>/base64" to see where it
-was installed.
+Note that we didn't specify a version for "base64", so the latest version is downloaded.
+Usually it's a good idea to specify a particular version, like "base64\@0.1".  Take a
+look at "registry/<your-platform>/base64" to see where the package was installed.
 
 We also haven't actually changed the hello-world code to use base64. That is
 left as an exercise. (Modify :file:`library.dylan` and run ``deft build -a`` again.)
@@ -236,8 +234,7 @@ file:
 1. :file:`workspace.json` -- A place to put workspace configuration
    settings. If this file exists, it takes precedence over the following two
    options in determining the workspace root.
-2. :file:`dylan-package.json` -- The package definition file, required for
-   projects that will be published to the package catalog.
+2. :file:`dylan-package.json` -- The package definition file.
 3. The current working directory is used if neither of the above are found.
 
 Usually, the workspace root is just the package directory (i.e., the directory
@@ -395,8 +392,6 @@ Subcommands
 .. index::
    single: deft help subcommand
    single: subcommand; deft help
-
-.. _deft-app help:
 
 deft help
 ---------
