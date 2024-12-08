@@ -44,8 +44,7 @@ packages, the [pacman-catalog](https://github.com/dylan-lang/pacman-catalog)
 repository. For any package to be downloadable it must have an entry in the
 catalog.
 
-Full documentation is
-[here](https://opendylan.org/package/deft).
+Full documentation is [here](https://package.opendylan.org/deft).
 
 ## Bugs
 
