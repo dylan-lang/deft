@@ -1,19 +1,19 @@
 # Deft
 
-[![tests](https://github.com/dylan-lang/deft/actions/workflows/test.yml/badge.svg)](https://github.com/dylan-lang/deft/actions/workflows/test.yml)
+[![tests](https://github.com/dylan-lang/deft/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/dylan-lang/deft/.github/workflows/build-and-test.yml)
 [![GitHub issues](https://img.shields.io/github/issues/dylan-lang/deft?color=blue)](https://github.com/dylan-lang/deft/issues)
 [![Matrix](https://img.shields.io/matrix/dylan-lang-general:matrix.org?color=blue&label=Chat%20on%20Matrix&server_fqdn=matrix.org)](https://app.element.io/#/room/#dylan-language:matrix.org)
 
-* Package management
-* Repeatable builds with "minimal version selection"
+* Manage project dependencies
 * No more editing registry files
 * No more Git submodules
 * Build/test from anywhere in your workspace
+* Create boilerplate for new projects
 
 Deft simplifies the management of Dylan workspaces and packages and
 provides a simplified interface to the Open Dylan compiler for building and
-(soon) testing, and generating documentation. It eliminates the need to manage
-library locations (registries) by hand and the need to use git submodules to
+(soon) testing and generating documentation. It eliminates the need to manage
+library locations (registries) by hand and the need to use Git submodules to
 track dependencies.
 
     $ deft new application hello
