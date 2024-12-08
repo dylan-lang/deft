@@ -46,7 +46,7 @@ jobs:
           DYLAN_CATALOG: ext/pacman-catalog
           DYLAN: dylan-root
         run: |
-          exe="$(realpath ${DYLAN}/bin/deft-app)"
+          exe="$(realpath ${DYLAN}/bin/deft)"
           export DYLAN_CATALOG="$(realpath ${DYLAN_CATALOG})"
           ${exe} new library --force-package abc strings@1.1
           cd abc
