@@ -127,9 +127,7 @@ define function load-all-catalog-packages
         #"directory" =>
           fs/do-directory(load-one, subdirectory-locator(dir, name));
         #"file" =>
-          // TODO: in release after 2020.1 use file-locator here.
-          let file = merge-locators(as(<file-locator>, name), dir);
-          add!(packages, load-catalog-package-file(cat, name, file));
+          add!(packages, load-catalog-package-file(cat, name, file-locator(dir, name)));
       end;
     end method;
   fs/do-directory(load-one, cat.catalog-directory);
@@ -254,10 +252,11 @@ define method package-locator
               1 => subdirectory-locator(root, "1");
               2 => subdirectory-locator(root, "2");
               otherwise =>
-                subdirectory-locator(subdirectory-locator(root, copy-sequence(name, end: 2)),
+                subdirectory-locator(root,
+                                     copy-sequence(name, end: 2),
                                      copy-sequence(name, start: 2, end: min(4, name.size)))
             end;
-  merge-locators(as(<file-locator>, name), dir)
+  file-locator(dir, name)
 end method;
 
 // The JSON printer calls do-print-json. We convert most objects to tables,

@@ -3,7 +3,7 @@ module: deft-test-suite
 define test test-new ()
   let test-dir = test-temp-directory();
   let ws-dir = subdirectory-locator(test-dir, "workspace-1");
-  let ws-file = merge-locators(as(<file-locator>, $workspace-file-name), ws-dir);
+  let ws-file = file-locator(ws-dir, $workspace-file-name);
   assert-false(file-exists?(ws-dir));
   let workspace = new("workspace-1", parent-directory: test-dir);
   assert-true(file-exists?(ws-file));
@@ -14,9 +14,8 @@ define test test-find-workspace-directory ()
   // Shouldn't need this call to resolve-locator.
   // https://github.com/dylan-lang/testworks/issues/157
   let tmp = resolve-locator(test-temp-directory());
-  let ws = merge-locators(as(<file-locator>, $workspace-file-name), tmp);
-  let dp = merge-locators(as(<file-locator>, $dylan-package-file-name),
-                          subdirectory-locator(tmp, "dp"));
+  let ws = file-locator(tmp, $workspace-file-name);
+  let dp = file-locator(tmp, "dp", $dylan-package-file-name);
   let bottom = subdirectory-locator(tmp, "dp", "abc", "xyz");
   ensure-directories-exist(bottom);
 

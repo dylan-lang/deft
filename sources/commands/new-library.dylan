@@ -336,17 +336,11 @@ end function;
 define function make-dylan-library
     (name :: <string>, dir :: <directory-locator>, exe? :: <bool>, deps :: <seq>,
      force-package? :: <bool>, simple? :: <bool>)
-  local
-    method file (name)
-      merge-locators(as(<file-locator>, name), dir)
-    end,
-    method test-file (name)
-      merge-locators(as(<file-locator>, name),
-                     subdirectory-locator(dir, "tests"))
-    end,
-    method dep-string (dep)
-      format-to-string("%=", pm/dep-to-string(dep))
-    end;
+  local method dep-string (dep)
+          format-to-string("%=", pm/dep-to-string(dep))
+        end;
+  let file = curry(file-locator, dir);
+  let test-file = curry(file-locator, dir, "tests");
   let test-name = concat(name, "-test-suite");
   let deps-string = join(map-as(<vector>, dep-string, deps), ", ");
   let base-library-templates

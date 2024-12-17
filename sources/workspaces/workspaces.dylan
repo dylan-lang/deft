@@ -45,8 +45,7 @@ define function new
  => (w :: false-or(<workspace>))
   let dir = parent-directory | fs/working-directory();
   let ws-dir = subdirectory-locator(dir, name);
-  let ws-file = as(<file-locator>, $workspace-file-name);
-  let ws-path = merge-locators(ws-file, ws-dir);
+  let ws-path = file-locator(ws-dir, $workspace-file-name);
   let existing = find-workspace-file(dir);
   if (existing)
     workspace-error("Can't create workspace file %s because it is inside another"
@@ -230,10 +229,8 @@ end function;
 // `directory` is expected to be the workspace root directory.
 define function find-active-packages
     (directory :: <directory-locator>) => (pkgs :: <seq>)
-  let dpkg-file = merge-locators(as(<file-locator>, $dylan-package-file-name),
-                                 directory);
-  let pkg-file = merge-locators(as(<file-locator>, $pkg-file-name),
-                                directory);
+  let dpkg-file = file-locator(directory, $dylan-package-file-name);
+  let pkg-file  = file-locator(directory, $pkg-file-name);
   if (fs/file-exists?(dpkg-file))
     vector(pm/load-dylan-package-file(dpkg-file))
   elseif (fs/file-exists?(pkg-file))
@@ -242,8 +239,8 @@ define function find-active-packages
     let packages = make(<stretchy-vector>);
     for (locator in fs/directory-contents(directory))
       if (instance?(locator, <directory-locator>))
-        let loc = merge-locators(as(<file-locator>, $dylan-package-file-name), locator);
-        let loc2 = merge-locators(as(<file-locator>, $pkg-file-name), locator);
+        let loc = file-locator(locator, $dylan-package-file-name);
+        let loc2 = file-locator(locator, $pkg-file-name);
         if (fs/file-exists?(loc))
           let pkg = pm/load-dylan-package-file(loc);
           add!(packages, pkg);
@@ -277,12 +274,12 @@ end function;
 define function active-package-file
     (ws :: <workspace>, pkg-name :: <string>) => (f :: <file-locator>)
   let dir = active-package-directory(ws, pkg-name);
-  let loc = merge-locators(as(<file-locator>, $dylan-package-file-name), dir);
-  let loc2 = merge-locators(as(<file-locator>, $pkg-file-name), dir);
-  if (fs/file-exists?(loc2) & ~fs/file-exists?(loc))
-    loc2
+  let dpkg = file-locator(dir, $dylan-package-file-name);
+  let pkg = file-locator(dir, $pkg-file-name);
+  if (fs/file-exists?(pkg) & ~fs/file-exists?(dpkg))
+    pkg
   else
-    loc
+    dpkg
   end
 end function;
 

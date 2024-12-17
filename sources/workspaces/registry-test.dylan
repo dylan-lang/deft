@@ -30,8 +30,7 @@ define test test-source-file-map--basics ()
   // Note that the "library" file intentionally has no ".dylan" extension, and
   // the extension is expected to be added in the map keys.
   for (filename in #("library.dylan", "foo.dylan"))
-    let full-locator
-      = merge-locators(as(<file-locator>, filename), directory);
+    let full-locator = file-locator(directory, filename);
     let full-path = as(<string>, full-locator);
     assert-equal(#("foo"),
                  element(file-map, full-path, default: #f),
@@ -58,8 +57,7 @@ define test test-source-file-map--included-lid ()
                  #(#("abc", "abc-test-suite"), "a.dylan", "b.dylan", "c.dylan")))
     let (libraries, #rest filenames) = apply(values, item);
     for (filename in filenames)
-      let full-locator
-        = merge-locators(as(<file-locator>, filename), directory);
+      let full-locator = file-locator(directory, filename);
       let full-path = as(<string>, full-locator);
       assert-equal(sort(libraries),
                    sort(element(file-map, full-path, default: #())),

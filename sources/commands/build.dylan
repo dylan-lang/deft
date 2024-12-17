@@ -57,6 +57,7 @@ define method execute-subcommand
   end;
   let dylan-compiler = locate-dylan-compiler();
   for (name in library-names)
+    // TODO: this should pass -target dll in some cases.
     let command = remove(vector(dylan-compiler,
                                 "-compile",
                                 get-option-value(subcmd, "clean") & "-clean",
