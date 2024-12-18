@@ -17,8 +17,8 @@ define constant $publish-subcommand
 define method execute-subcommand
     (parser :: <command-line-parser>, subcmd :: <publish-subcommand>)
  => (status :: false-or(<int>))
-  let workspace = ws/load-workspace();
-  let release = ws/workspace-release(workspace);
+  let release = ws/current-dylan-package(fs/working-directory())
+    | error("No Dylan package file found. Not inside a workspace?");
   let cat-dir = as(<directory-locator>,
                    get-option-value($publish-subcommand, "catalog-directory"));
   let cat = pm/catalog(directory: cat-dir);

@@ -42,7 +42,7 @@ define constant $default-library-key = "default-library";
 // TODO: validate `name`
 define function new
     (name :: <string>, #key parent-directory :: false-or(<directory-locator>))
- => (w :: false-or(<workspace>))
+ => (ws :: false-or(<workspace>))
   let dir = parent-directory | fs/working-directory();
   let ws-dir = subdirectory-locator(dir, name);
   let ws-path = file-locator(ws-dir, $workspace-file-name);
@@ -58,7 +58,12 @@ define function new
     fs/with-open-file (stream = ws-path,
                        direction: #"output", if-does-not-exist: #"create",
                        if-exists: #"error")
-      format(stream, "# Dylan workspace %=\n\n{}\n", name);
+      format(stream, """
+                     # Dylan workspace %=
+
+                     {}
+
+                     """, name);
     end;
     note("Workspace created: %s", ws-path);
   end;
@@ -109,9 +114,6 @@ define class <workspace> (<object>)
     init-keyword: default-library-name:;
   constant slot multi-package-workspace? :: <bool> = #f,
     init-keyword: multi-package?:;
-  // The <release> that was loaded from dylan-package.json, if any.
-  constant slot workspace-release :: false-or(pm/<release>) = #f,
-    init-keyword: release:;
 end class;
 
 define function workspace-registry-directory
@@ -159,11 +161,11 @@ define function load-workspace
        active-packages: active-packages,
        directory: ws-dir,
        registry: registry,
-       release: dp-file & pm/load-dylan-package-file(dp-file),
        default-library-name: default-library,
-       multi-package?: ws-file
-                         & dp-file
-                         & (ws-file.locator-directory ~= dp-file.locator-directory))
+       multi-package?: (active-packages.size > 1
+                          | (ws-file
+                               & dp-file
+                               & (ws-file.locator-directory ~= dp-file.locator-directory))))
 end function;
 
 define function load-json-file (file :: <file-locator>) => (config :: false-or(<table>))
@@ -200,6 +202,12 @@ define function find-dylan-package-file
     | find-file-in-or-above(directory, as(<file-locator>, $pkg-file-name))
 end function;
 
+define function current-dylan-package
+    (directory :: <directory-locator>) => (p :: false-or(pm/<release>))
+  let dp-file = find-dylan-package-file(directory);
+  dp-file & pm/load-dylan-package-file(dp-file)
+end function;
+
 // Return the nearest file or directory with the given `name` in or above
 // `directory`. `name` is expected to be a locator with an empty path
 // component.
@@ -224,36 +232,43 @@ define function find-file-in-or-above
   end
 end function;
 
-// Find `directory`/*/dylan-package.json or `directory`/dylan-package.json and
-// turn them/it into a sequence of package `<release>` objects. In other words,
-// `directory` is expected to be the workspace root directory.
+// Look for dylan-package.json or */dylan-package.json relative to the workspace
+// directory and turn it/them into a sequence of `<release>` objects.
 define function find-active-packages
     (directory :: <directory-locator>) => (pkgs :: <seq>)
-  let dpkg-file = file-locator(directory, $dylan-package-file-name);
-  let pkg-file  = file-locator(directory, $pkg-file-name);
-  if (fs/file-exists?(dpkg-file))
-    vector(pm/load-dylan-package-file(dpkg-file))
-  elseif (fs/file-exists?(pkg-file))
-    vector(pm/load-dylan-package-file(pkg-file))
-  else
-    let packages = make(<stretchy-vector>);
-    for (locator in fs/directory-contents(directory))
-      if (instance?(locator, <directory-locator>))
-        let loc = file-locator(locator, $dylan-package-file-name);
-        let loc2 = file-locator(locator, $pkg-file-name);
-        if (fs/file-exists?(loc))
-          let pkg = pm/load-dylan-package-file(loc);
-          add!(packages, pkg);
-        elseif (fs/file-exists?(loc2))
-          warn("Please rename %s to %s; support for %= will be"
-                 " removed soon.", loc2, $dylan-package-file-name, $pkg-file-name);
-          let pkg = pm/load-dylan-package-file(loc2);
-          add!(packages, pkg);
-        end;
-      end;
-    end;
-    packages
-  end
+  let subdir-files
+    = collecting ()
+        for (locator in fs/directory-contents(directory))
+          if (instance?(locator, <directory-locator>))
+            let dpkg = file-locator(locator, $dylan-package-file-name);
+            let pkg = file-locator(locator, $pkg-file-name);
+            if (fs/file-exists?(dpkg))
+              collect(dpkg);
+            elseif (fs/file-exists?(pkg))
+              warn("Please rename %s to %s; support for %= will be"
+                     " removed soon.", pkg, $dylan-package-file-name, $pkg-file-name);
+              collect(pkg);
+            end;
+          end;
+        end for;
+      end collecting;
+  local method check-file (file, warn-obsolete?)
+          if (fs/file-exists?(file))
+            if (~empty?(subdir-files))
+              warn("Workspace has both a top-level package file (%s) and"
+                     " packages in subdirectories (%s). The latter will be ignored.",
+                   file, join(map(curry(as, <string>), subdir-files), ", "));
+            end;
+            if (warn-obsolete?)
+              warn("Please rename %s to %s; support for %= will be"
+                     " removed soon.", file, $dylan-package-file-name, $pkg-file-name);
+            end;
+            vector(pm/load-dylan-package-file(file))
+          end
+        end method;
+  check-file(file-locator(directory, $dylan-package-file-name), #f)
+    | check-file(file-locator(directory, $pkg-file-name), #t)
+    | map(pm/load-dylan-package-file, subdir-files)
 end function;
 
 define function active-package-names

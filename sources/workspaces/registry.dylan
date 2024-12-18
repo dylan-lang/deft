@@ -9,18 +9,20 @@ end;
 
 // Keys used to lookup values in a parsed LID file.
 define constant $platforms-key = #"platforms";
-define constant $files-key = #"files";
-define constant $library-key = #"library";
-define constant $lid-key = #"lid";
-define constant $origin-key = #"origin";
-define constant $idl-file-key = #"idl-file";
-define constant $prefix-key = #"prefix";
+define constant $files-key     = #"files";
+define constant $library-key   = #"library";
+define constant $lid-key       = #"lid";
+define constant $origin-key    = #"origin";
+define constant $idl-file-key  = #"idl-file";
+define constant $prefix-key    = #"prefix";
 
-// A <registry> knows how to find and parse LID files and write registry files
-// for them.
+// A <registry> tracks the mapping of registry files to parsed LID files, but also keeps
+// track of pertinent workspace information such as which package each library belongs to
+// or whether it was pulled in as a dependency. The registry is scanned once at the start
+// of each deft subcommand.
 define class <registry> (<object>)
 
-  // The directory containing the "registry" directory, where files will be written.
+  // The directory containing the "registry" directory.
   constant slot root-directory :: <directory-locator>,
     required-init-keyword: root-directory:;
 
@@ -28,7 +30,7 @@ define class <registry> (<object>)
   // (A library with platform-specific definitions may have multiple lids.)
   constant slot lids-by-library :: <istring-table> = make(<istring-table>);
 
-  // A map from full absolute pathname to the associated <lid>.
+  // A map from full absolute pathname of a LID file to the associated <lid>.
   constant slot lids-by-pathname :: <istring-table> = make(<istring-table>);
 
   // This is a hack to prevent logging warning messages multiple times.  I
@@ -230,7 +232,7 @@ end function;
 // Descend pkg-dir parsing .lid, .hdp, or .spec files. Updates `registry`s
 // internal maps.  .hdp files are (I believe) obsolecent so the .lid file is
 // preferred. For .spec files the corresponding .hdp file may not exist yet so
-// the table returned for it just has a #"library" key, which is enough.
+// the table returned for it just has a #"library" key.
 define function find-lids
     (registry :: <registry>, pkg-dir :: <directory-locator>) => (lids :: <seq>)
   let lids = #();
@@ -266,7 +268,8 @@ define function find-lids
           if (name ~= ".git" & ~fs/file-exists?(subdir/git))
             fs/do-directory(parse-lids, subdir);
           end;
-        #"link" => #f;
+        #"link" =>
+          #f;
       end select;
     end method;
   fs/do-directory(parse-lids, pkg-dir);

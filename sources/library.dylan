@@ -2,7 +2,7 @@ Module: dylan-user
 
 define library deft
   use collections,
-    import: { table-extensions };
+    import: { collectors, table-extensions };
   use command-line-parser;
   use dylan,
     import: { dylan-extensions, threads };
@@ -156,6 +156,7 @@ define module workspaces
     active-package-directory,
     active-package-file,
     active-package?,
+    current-dylan-package,
     find-active-package-library-names,
     find-dylan-package-file,
     find-library-names,
@@ -167,11 +168,11 @@ define module workspaces
     workspace-active-packages,
     workspace-default-library-name,
     workspace-directory,
-    workspace-registry-directory,
-    workspace-release;
+    workspace-registry-directory;
 end module;
 
 define module %workspaces
+  use collectors;
   use dylan-extensions,
     import: { address-of };
   use file-source-records, prefix: "sr/";
