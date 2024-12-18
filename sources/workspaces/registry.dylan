@@ -434,30 +434,3 @@ define method find-library-names
              find-lids(registry, registry.root-directory)),
          #f)
 end method;
-
-
-// Build a map from source file names (absolute pathname strings) to the names
-// of libraries they belong to (a sequence of strings). For now we only look at
-// .dylan files (i.e., the Files: header) since this is designed for use by the
-// lsp-dylan library and that's what it cares about.
-define function source-file-map
-    (dir :: <directory-locator>) => (map :: <table>)
-  let registry = make(<registry>, root-directory: dir);
-  let file-map
-    // This wouldn't be necessary if we had an <equal-table> implementation.
-    // Then I'd use locators as the keys, which is cross-platform.
-    = make(if (os/$os-name == #"win32") <istring-table> else <string-table> end);
-  for (lid in find-lids(registry, dir))
-    let library = lid-value(lid, $library-key);
-    if (library)
-      for (pathname in dylan-source-files(lid))
-        let libraries
-          = add-new!(element(file-map, pathname, default: #()),
-                     library,
-                     test: string-equal-ic?);
-        file-map[pathname] := libraries;
-      end for;
-    end if;
-  end for;
-  file-map
-end function;

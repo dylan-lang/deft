@@ -163,7 +163,6 @@ define module workspaces
     find-workspace-file,
     load-workspace,
     new,
-    source-file-map,
     update,
     workspace-active-packages,
     workspace-default-library-name,
