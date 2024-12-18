@@ -1,15 +1,5 @@
 module: deft-test-suite
 
-define test test-new ()
-  let test-dir = test-temp-directory();
-  let ws-dir = subdirectory-locator(test-dir, "workspace-1");
-  let ws-file = file-locator(ws-dir, $workspace-file-name);
-  assert-false(file-exists?(ws-dir));
-  let workspace = new("workspace-1", parent-directory: test-dir);
-  assert-true(file-exists?(ws-file));
-  assert-equal(workspace-directory(workspace), simplify-locator(ws-dir));
-end test;
-
 define test test-find-workspace-directory ()
   // Shouldn't need this call to resolve-locator.
   // https://github.com/dylan-lang/testworks/issues/157

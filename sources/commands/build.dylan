@@ -35,15 +35,14 @@ define constant $build-subcommand
 define method execute-subcommand
     (parser :: <command-line-parser>, subcmd :: <build-subcommand>)
  => (status :: false-or(<int>))
-  let workspace = ws/load-workspace();
+  let ws = ws/load-workspace();
   let library-names = get-option-value(subcmd, "libraries") | #[];
   let all? = get-option-value(subcmd, "all");
   if (all?)
     if (~empty?(library-names))
       warn("Ignoring --all option. Using the specified libraries instead.");
     else
-      library-names
-        := ws/find-active-package-library-names(workspace);
+      library-names := active-package-libraries(ws);
       if (empty?(library-names))
         error("No libraries found in workspace.");
       end;
@@ -51,7 +50,7 @@ define method execute-subcommand
   end;
   if (empty?(library-names))
     library-names
-      := list(ws/workspace-default-library-name(workspace)
+      := list(ws/workspace-default-library-name(ws)
                 | error("No libraries found in workspace and no"
                           " default libraries configured."));
   end;
@@ -66,20 +65,21 @@ define method execute-subcommand
                                 name),
                          #f);
     debug("Running command %=", command);
-    let env = make-compilation-environment(workspace);
+    let env = make-compilation-environment(ws);
     let exit-status
       = os/run-application(command,
                            environment: env, // adds to the existing environment
                            under-shell?: #f,
-                           working-directory: ws/workspace-directory(workspace));
+                           working-directory: ws/workspace-directory(ws));
     if (exit-status ~== 0)
       error("Build of %= failed with exit status %=.", name, exit-status);
     end;
   end for;
 end method;
 
-define function make-compilation-environment (ws :: ws/<workspace>) => (env :: <table>)
-  let val = as(<string>, ws/workspace-registry-directory(ws));
+define function make-compilation-environment
+    (ws :: ws/<workspace>) => (env :: <table>)
+  let val = as(<string>, ws/registry-directory(ws));
   let var = "OPEN_DYLAN_USER_REGISTRIES";
   let odur = os/environment-variable(var);
   if (odur)
@@ -87,4 +87,15 @@ define function make-compilation-environment (ws :: ws/<workspace>) => (env :: <
     val := concat(val, iff(os/$os-name == #"win32", ";", ":"), odur);
   end;
   tabling(<string-table>, var => val)
+end function;
+
+define function active-package-libraries
+    (ws :: ws/<workspace>) => (libraries :: <seq>)
+  collecting ()
+    for (lids in ws/lids-by-active-package(ws))
+      for (lid in lids)
+        collect(ws/library-name(lid));
+      end;
+    end;
+  end
 end function;

@@ -33,6 +33,7 @@ really-install:
 	mkdir -p $(DYLAN)/bin
 	cp _build/sbin/deft-app $(DYLAN)/bin/deft
 	ln -f $(DYLAN)/bin/deft $(DYLAN)/bin/deft-app
+	ln -f $(DYLAN)/bin/deft $(DYLAN)/bin/dylan
 
 install: build-with-version really-install
 

@@ -2,6 +2,10 @@ Module: deft
 Synopsis: Various command implementations not big enough to warrant their own file
 
 
+// TODO: put each command in its own file, more or less. Having a bunch of random small
+// commands in this file just makes them harder to find.
+
+
 /// deft install
 
 define class <install-subcommand> (<subcommand>)
@@ -37,6 +41,9 @@ end method;
 
 
 /// deft list
+
+// TODO: this should show locally installed packages by default, but have a --global
+// flag.
 
 define class <list-subcommand> (<subcommand>)
   keyword name = "list";
@@ -137,34 +144,48 @@ define method execute-subcommand
  => (status :: false-or(<int>))
   let name = get-option-value(subcmd, "name");
   let dir = get-option-value(subcmd, "directory");
-  ws/new(name, parent-directory: dir & as(<directory-locator>, dir));
+  new(name, parent-directory: dir & as(<directory-locator>, dir));
   0
 end method;
 
+// Create a new workspace named `name` under `parent-directory`. If `parent-directory` is
+// not supplied use the standard location.
+//
+// TODO: validate `name`
+define function new
+    (name :: <string>, #key parent-directory :: false-or(<directory-locator>))
+ => (ws :: false-or(ws/<workspace>))
+  let dir = parent-directory | fs/working-directory();
+  let ws-dir = subdirectory-locator(dir, name);
+  let ws-path = file-locator(ws-dir, ws/$workspace-file-name);
+  let existing = ws/find-workspace-file(dir);
+  if (existing)
+    ws/workspace-error("Can't create workspace file %s because it is inside another"
+                         " workspace, %s.", ws-path, existing);
+  end;
+  if (fs/file-exists?(ws-path))
+    note("Workspace already exists: %s", ws-path);
+  else
+    fs/ensure-directories-exist(ws-path);
+    fs/with-open-file (stream = ws-path,
+                       direction: #"output", if-does-not-exist: #"create",
+                       if-exists: #"error")
+      format(stream, """
+                     # Dylan workspace %=
 
-/// deft update
+                     {}
 
-define class <update-subcommand> (<subcommand>)
-  keyword name = "update";
-  keyword help = "Update the workspace based on the active packages.";
-end class;
-
-define constant $update-subcommand
-  = make(<update-subcommand>,
-         options: list(make(<flag-option>,
-                            names: #("global"),
-                            help: "Install packages globally instead of in the"
-                              " workspace. [%default%]")));
-
-define method execute-subcommand
-    (parser :: <command-line-parser>, subcmd :: <update-subcommand>)
- => (status :: false-or(<int>))
-  let global? = get-option-value(subcmd, "global");
-  ws/update(global?: global?);
-end method;
+                     """, name);
+    end;
+    note("Workspace created: %s", ws-path);
+  end;
+  ws/load-workspace(directory: ws-dir)
+end function;
 
 
 /// deft status
+
+// TODO: show active package dependencies and whether or not they're installed.
 
 define class <status-subcommand> (<subcommand>)
   keyword name = "status";
@@ -177,14 +198,11 @@ define constant $status-subcommand
                             name: "directory",
                             help: "Only show the workspace directory.")));
 
+// TODO: show settings like default library name.
 define method execute-subcommand
     (parser :: <command-line-parser>, subcmd :: <status-subcommand>)
  => (status :: false-or(<int>))
   let workspace = ws/load-workspace();
-  if (~workspace)
-    note("Not currently in a workspace.");
-    abort-command(1);
-  end;
   note("Workspace: %s", ws/workspace-directory(workspace));
   if (get-option-value(subcmd, "directory"))
     abort-command(0);

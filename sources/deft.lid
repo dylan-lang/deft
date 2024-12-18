@@ -7,6 +7,7 @@ Files: library.dylan
        pacman/catalog.dylan
        pacman/deps.dylan
        pacman/install.dylan
+       workspaces/lid.dylan
        workspaces/registry.dylan
        workspaces/workspaces.dylan
        commands/utils.dylan
@@ -14,4 +15,5 @@ Files: library.dylan
        commands/new-library.dylan
        commands/publish.dylan
        commands/build.dylan
+       commands/update.dylan
        commands/command-line.dylan
