@@ -88,6 +88,7 @@ define module pacman
     release-dependencies,
     release-dev-dependencies,
     release-license,
+    release-package,
     release-to-string,
     release-url,
     release-version,
@@ -152,23 +153,26 @@ define module workspaces
     $dylan-package-file-name,
     $workspace-file-name,
     <workspace-error>,
+    workspace-error,
     <workspace>,
     active-package-directory,
     active-package-file,
     active-package?,
     current-dylan-package,
-    find-active-package-library-names,
+    ensure-deps-installed,
     find-dylan-package-file,
-    find-library-names,
     find-workspace-directory,
     find-workspace-file,
+    library-name,
+    lids-by-active-package,
+    lids-by-library,
+    lids-by-pathname,
     load-workspace,
-    new,
-    update,
+    registry-directory,
+    update-registry,
     workspace-active-packages,
     workspace-default-library-name,
-    workspace-directory,
-    workspace-registry-directory;
+    workspace-directory;
 end module;
 
 define module %workspaces
@@ -205,11 +209,11 @@ define module %workspaces
     lid-data,
     lid-value,
     lid-values,
-    parse-lid-file,
-    <registry>;
+    parse-lid-file;
 end module;
 
 define module deft
+  use collectors;
   use command-line-parser;
   use file-system, prefix: "fs/";
   use format;
@@ -217,12 +221,17 @@ define module deft
   use json;
   use locators;
   use operating-system, prefix: "os/";
-  use pacman, prefix: "pm/";
+  use pacman,
+    prefix: "pm/",
+    // Because / followed by * is seen as a comment by dylan-mode.
+    rename: { *package-manager-directory* => *package-manager-directory* };
   use regular-expressions;
   use shared;
   use standard-io;
   use streams;
   use strings;
+  use threads,
+    import: { dynamic-bind };
   use uncommon-dylan,
     exclude: { format-out, format-to-string };
   use uncommon-utils,

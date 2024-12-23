@@ -433,7 +433,8 @@ define function make-dylan-library
       note("Created library %s.", name)
     end;
   end;
-  ws/update(directory: dir);
+  let ws = ws/load-workspace(directory: dir);
+  update-workspace(ws);
 end function;
 
 // Parse dependency specs like lib, lib@latest, or lib@1.2. Deps are always

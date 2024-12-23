@@ -1,14 +1,14 @@
 Module: deft-test-suite
 
 // The low-level LID parsing is done by the file-source-records library so this
-// test is mainly concerned with whether parsing the LID: header works.
+// test is mainly concerned with whether parsing the "LID:" header works.
 define test test-parse-lid-file--lid-header ()
   let parent-file
     = write-test-file("parent.lid", contents: "library: foo\nlid: child.lid\n");
   let child-file
     = write-test-file("child.lid", contents: "h1: v1\nh2: v2\n");
-  let registry = make(<registry>, root-directory: locator-directory(parent-file));
-  let parent-lid = parse-lid-file(registry, parent-file);
+  let ws = make(<workspace>, directory: locator-directory(parent-file));
+  let parent-lid = parse-lid-file(ws, #f, parent-file);
   assert-equal(2, parent-lid.lid-data.size);
 
   let sub-lids = lid-values(parent-lid, $lid-key) | #[];
