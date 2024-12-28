@@ -54,22 +54,24 @@ define method execute-subcommand
                 | error("No libraries found in workspace and no"
                           " default libraries configured."));
   end;
-  let dylan-compiler = locate-dylan-compiler();
   for (name in library-names)
     // TODO: this should pass -target dll in some cases.
-    let command = remove(vector(dylan-compiler,
-                                "-compile",
-                                get-option-value(subcmd, "clean") & "-clean",
-                                get-option-value(subcmd, "link") & "-link",
-                                get-option-value(subcmd, "unify") & "-unify",
-                                name),
-                         #f);
-    debug("Running command %=", command);
+    // Let the shell locate dylan-compiler...
+    let command
+      = join(remove(list("dylan-compiler",
+                         "-compile",
+                         get-option-value(subcmd, "clean") & "-clean",
+                         get-option-value(subcmd, "link") & "-link",
+                         get-option-value(subcmd, "unify") & "-unify",
+                         name),
+                    #f),
+             " ");
+    verbose("%s", command);
     let env = make-compilation-environment(ws);
     let exit-status
       = os/run-application(command,
-                           environment: env, // adds to the existing environment
-                           under-shell?: #f,
+                           environment: env, // AUGMENTS the existing environment
+                           under-shell?: #t,
                            working-directory: ws/workspace-directory(ws));
     if (exit-status ~== 0)
       error("Build of %= failed with exit status %=.", name, exit-status);
