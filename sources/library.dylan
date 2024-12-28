@@ -41,8 +41,7 @@ define module shared
     note,
     verbose,
     trace,
-    warn,
-    locate-dylan-compiler;
+    warn;
 end module;
 
 define module pacman
