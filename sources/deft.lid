@@ -10,10 +10,14 @@ Files: library.dylan
        workspaces/lid.dylan
        workspaces/registry.dylan
        workspaces/workspaces.dylan
-       commands/utils.dylan
-       commands/simple-commands.dylan
-       commands/new-library.dylan
-       commands/publish.dylan
        commands/build.dylan
-       commands/update.dylan
        commands/command-line.dylan
+       commands/install.dylan
+       commands/list.dylan
+       commands/new-library.dylan
+       commands/new-workspace.dylan
+       commands/publish.dylan
+       commands/status.dylan
+       commands/update.dylan
+       commands/utils.dylan
+       commands/version.dylan
