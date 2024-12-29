@@ -55,3 +55,11 @@ jobs:
           ${exe} list
           ${exe} build abc-test-suite
           _build/bin/abc-test-suite
+
+      - name: Run test suite using submodules
+        env:
+          DYLAN_CATALOG: ext/pacman-catalog
+          DYLAN: dylan-root
+        run: |
+          mkdir -p ${DYLAN}
+          make test-submodules
