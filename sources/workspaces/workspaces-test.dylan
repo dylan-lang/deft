@@ -7,7 +7,7 @@ define test test-find-workspace-directory ()
   let ws = file-locator(tmp, $workspace-file-name);
   let dp = file-locator(tmp, "dp", $dylan-package-file-name);
   let bottom = subdirectory-locator(tmp, "dp", "abc", "xyz");
-  ensure-directories-exist(bottom);
+  fs/ensure-directories-exist(bottom);
 
   // Initially there is no workspace directory.
   let ws-dir = find-workspace-directory(bottom);

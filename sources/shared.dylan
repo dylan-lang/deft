@@ -1,4 +1,4 @@
-Module: shared
+Module: deft-shared
 
 
 // Whether to do verbose output. This is set based on the --verbose command

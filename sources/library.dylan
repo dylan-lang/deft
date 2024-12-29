@@ -19,21 +19,33 @@ define library deft
 
   export
     deft,
-    pacman,
-    %pacman,
-    shared,
-    workspaces,
-    %workspaces;
+    deft-shared,
+    pacman, %pacman,
+    workspaces, %workspaces;
 end library;
 
-// Definitions used by all the other modules.
-define module shared
-  use format-out;
-  use operating-system, prefix: "os/";
-  use streams;
-  use strings;
-  use uncommon-dylan,
-    exclude: { format-out };
+// Utilities shared by all Deft modules, and also a set of shared imports.
+define module deft-shared
+  use collectors, export: all;
+  use command-line-parser, export: all;
+  use date, import: { current-date, <duration> }, export: all;
+  use dylan-extensions, import: { address-of }, export: all;
+  use file-source-records, prefix: "sr/", export: all;
+  use file-system, prefix: "fs/", export: all;
+  use format-out, export: all;
+  use format, export: all;
+  use json, export: all;
+  use locators, export: all;
+  use operating-system, prefix: "os/", export: all;
+  use print, export: all;
+  use regular-expressions, export: all;
+  use standard-io, export: all;
+  use streams, export: all;
+  use strings, export: all;
+  use threads, import: { dynamic-bind }, export: all;
+  use uncommon-dylan, export: all;
+  use uncommon-utils, export: all;
+
   export
     *debug?*,
     *verbose?*,
@@ -110,26 +122,8 @@ define module pacman
 end module;
 
 define module %pacman
-  use date,
-    import: { current-date, <duration> };
-  use file-system, prefix: "fs/";
-  use format;
-  use format-out;
-  use json;
-  use locators;
-  use operating-system, prefix: "os/";
-  use print;
-  use regular-expressions;
-  use shared;
-  use streams;
-  use strings;
-  use uncommon-dylan,
-    exclude: { format-out, format-to-string };
-  // Do we need this?
-  use uncommon-utils,
-    import: { elt, iff, <singleton-object>, value-sequence };
-
-  use pacman, export: all;
+  use deft-shared;
+  use pacman;
 
   // For the test suite.
   export
@@ -175,32 +169,12 @@ define module workspaces
 end module;
 
 define module %workspaces
-  use collectors;
-  use dylan-extensions,
-    import: { address-of };
-  use file-source-records, prefix: "sr/";
-  use file-system, prefix: "fs/";
-  use format;
-  use format-out;
-  use json;
-  use locators;
-  use operating-system, prefix: "os/";
+  use deft-shared;
+  use workspaces;
   use pacman,
     prefix: "pm/",
     // Because / followed by * is seen as a comment by dylan-mode.
     rename: { *package-manager-directory* => *package-manager-directory* };
-  use print;
-  use regular-expressions;
-  use shared;
-  use standard-io;
-  use streams;
-  use strings;
-  use threads;
-  use uncommon-dylan,
-    exclude: { format-out, format-to-string };
-  use uncommon-utils,
-    import: { err, iff, inc!, slice };
-  use workspaces;
 
   // Exports for the test suite.
   export
@@ -212,29 +186,11 @@ define module %workspaces
 end module;
 
 define module deft
-  use collectors;
-  use command-line-parser;
-  use file-system, prefix: "fs/";
-  use format;
-  use format-out;
-  use json;
-  use locators;
-  use operating-system, prefix: "os/";
+  use deft-shared;
   use pacman,
     prefix: "pm/",
-    // Because / followed by * is seen as a comment by dylan-mode.
+    // Because pm/*... is seen as a /* comment by dylan-mode.
     rename: { *package-manager-directory* => *package-manager-directory* };
-  use regular-expressions;
-  use shared;
-  use standard-io;
-  use streams;
-  use strings;
-  use threads,
-    import: { dynamic-bind };
-  use uncommon-dylan,
-    exclude: { format-out, format-to-string };
-  use uncommon-utils,
-    import: { err, iff, inc!, slice };
   use workspaces, prefix: "ws/";
 
   export
