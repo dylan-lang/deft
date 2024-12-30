@@ -26,40 +26,25 @@ jobs:
       - uses: dylan-lang/install-opendylan@v3
 
       - name: Build and run test suite
-        env:
-          DYLAN_CATALOG: ext/pacman-catalog
-          DYLAN: dylan-root
         run: |
+          export DYLAN="$(realpath dylan-root)"
           mkdir -p ${DYLAN}
           make test
 
       - name: Install
-        env:
-          DYLAN_CATALOG: ext/pacman-catalog
-          DYLAN: dylan-root
         run: |
+          export DYLAN="$(realpath dylan-root)"
           mkdir -p ${DYLAN}
           make install
 
       - name: Exercise deft
-        env:
-          DYLAN_CATALOG: ext/pacman-catalog
-          DYLAN: dylan-root
         run: |
-          exe="$(realpath ${DYLAN}/bin/deft)"
-          export DYLAN_CATALOG="$(realpath ${DYLAN_CATALOG})"
-          ${exe} new library --force-package abc strings@1.1
+          export DYLAN="$(realpath dylan-root)"
+          export PATH="${DYLAN}/bin:${PATH}"
+          deft new library --force-package abc strings@1.1
           cd abc
-          ${exe} update
-          ${exe} status
-          ${exe} list
-          ${exe} build abc-test-suite
+          deft update
+          deft status
+          deft list
+          deft build abc-test-suite
           _build/bin/abc-test-suite
-
-      - name: Run test suite using submodules
-        env:
-          DYLAN_CATALOG: ext/pacman-catalog
-          DYLAN: dylan-root
-        run: |
-          mkdir -p ${DYLAN}
-          make test-submodules
