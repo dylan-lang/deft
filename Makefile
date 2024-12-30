@@ -1,4 +1,5 @@
-# Low-tech Makefile to build and install deft.
+# Low-tech Makefile to build and install deft. You will need a working "dylan" binary on
+# your PATH somewhere.
 
 DYLAN		?= $${HOME}/dylan
 
@@ -6,19 +7,9 @@ DYLAN		?= $${HOME}/dylan
 
 git_version := $(shell git describe --tags --always --match 'v*')
 
-# Hack to add the version to the binary with Git tag info. During development I (cgay)
-# just build with "deft build" so the unnecessary rebuilds that this would cause aren't
-# an issue.
 build:
 	dylan update
-	file="sources/commands/utils.dylan"; \
-	  orig=$$(mktemp); \
-	  temp=$$(mktemp); \
-	  cp -p $${file} $${orig}; \
-	  cat $${file} | sed "s,/.__./.*/.__./,/*__*/ \"${git_version}\ built on $$(date -Iseconds)\" /*__*/,g" > $${temp}; \
-	  mv $${temp} $${file}; \
-	  OPEN_DYLAN_USER_REGISTRIES=${PWD}/registry dylan-compiler -build deft-app; \
-	  cp -p $${orig} $${file}
+	dylan build deft-app
 
 install: build
 	mkdir -p $(DYLAN)/bin
@@ -36,8 +27,7 @@ install: build
 
 test:
 	dylan update
-	OPEN_DYLAN_USER_REGISTRIES=${PWD}/registry dylan-compiler -build deft-test-suite \
-	  && _build/bin/deft-test-suite
+	dylan build deft-test-suite && _build/bin/deft-test-suite
 
 dist: distclean install
 
