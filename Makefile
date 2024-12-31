@@ -5,8 +5,6 @@ DYLAN		?= $${HOME}/dylan
 
 .PHONY: build clean install remove-deft-artifacts test dist distclean
 
-git_version := $(shell git describe --tags --always --match 'v*')
-
 build:
 	dylan update
 	dylan build deft-app
@@ -40,6 +38,6 @@ clean:
 
 distclean: clean
 	rm -rf $(DYLAN)/install/deft
-	rm $(DYLAN)/bin/deft
-	rm $(DYLAN)/bin/deft-app
-	rm $(DYLAN)/bin/dylan
+	rm -f $(DYLAN)/bin/deft
+	rm -f $(DYLAN)/bin/deft-app
+	rm -f $(DYLAN)/bin/dylan
