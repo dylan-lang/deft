@@ -39,19 +39,6 @@ define function write-registry-file
   end
 end function;
 
-// Read the full contents of a file and return it as a string.  If the file
-// doesn't exist return #f. (I thought if-does-not-exist: #f was supposed to
-// accomplish this without the need for block/exception.)
-define function file-content (path :: <locator>) => (text :: false-or(<string>))
-  block ()
-    fs/with-open-file(stream = path, if-does-not-exist: #"signal")
-      read-to-end(stream)
-    end
-  exception (fs/<file-does-not-exist-error>)
-    #f
-  end
-end function;
-
 // Create/update a single registry directory having an entry for each library
 // in each active package and all transitive dependencies.  This traverses
 // package directories to find .lid files. Note that it assumes that .lid files

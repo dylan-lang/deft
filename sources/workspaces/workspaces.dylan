@@ -193,16 +193,6 @@ define function load-workspace-config
     := element(json, $default-library-key, default: #f) | find-default-library();
 end function;
 
-define function load-json-file (file :: <file-locator>) => (config :: <table>)
-  fs/with-open-file(stream = file, if-does-not-exist: #f)
-    let object = parse-json(stream, strict?: #f, table-class: <istring-table>);
-    if (~instance?(object, <table>))
-      workspace-error("Invalid JSON file %s, must contain at least {}", file);
-    end;
-    object
-  end
-end function;
-
 // Find the workspace directory. The nearest directory containing
 // workspace.json always takes precedence. Otherwise the nearest directory
 // containing dylan-package.json.

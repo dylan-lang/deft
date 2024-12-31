@@ -49,11 +49,9 @@ define module deft-shared
   export
     *debug?*,
     *verbose?*,
-    debug,
-    note,
-    verbose,
-    trace,
-    warn;
+    debug, note, verbose, trace, warn,
+    file-content,
+    load-json-file;
 end module;
 
 define module pacman
