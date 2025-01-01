@@ -21,3 +21,4 @@ Files: library.dylan
        commands/update.dylan
        commands/utils.dylan
        commands/version.dylan
+Target-type: dll
