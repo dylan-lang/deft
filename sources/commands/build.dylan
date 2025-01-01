@@ -55,7 +55,6 @@ define method execute-subcommand
                           " default libraries configured."));
   end;
   for (name in library-names)
-    // TODO: this should pass -target dll in some cases.
     // Let the shell locate dylan-compiler...
     let command
       = join(remove(list("dylan-compiler",
