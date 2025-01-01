@@ -81,16 +81,8 @@ end method;
 // `target-dir` is up to date.
 define function ensure-current-link
     (release :: <release>, target-dir :: <directory-locator>) => ()
-  let link-source = merge-locators(as(<file-locator>, "current"),
-                                   package-directory(release-package(release)));
-  // Use file-type instead of file-exists? because the latter would follow the link.
-  // After https://github.com/dylan-lang/opendylan/pull/1484 is in an OD release
-  // (i.e., post 2022.1) this can use file-exists?(link-source, follow-links?: #f).
-  let exists? = block ()
-                  fs/file-type(link-source)
-                exception (fs/<file-system-error>)
-                  #f
-                end;
+  let link-source = file-locator(package-directory(release-package(release)), "current");
+  let exists? = fs/file-exists?(link-source, follow-links?: #f);
   let target = as(<string>, release-directory(release));
   if (ends-with?(target, "/") | ends-with?(target, "\\"))
     target := copy-sequence(target, end: target.size - 1);

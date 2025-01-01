@@ -11,11 +11,11 @@ define library deft-app
 end library;
 
 define module deft-app
-  use common-dylan;
   use command-line-parser;
+  use common-dylan;
+  use deft-shared;
   use deft;
   use format-out;
   use logging;
   use operating-system, prefix: "os/";
-  use shared;
 end module;

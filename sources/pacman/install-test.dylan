@@ -12,21 +12,19 @@ define test test-install (tags: #["net"])
                                   versions: #("1.0.0"),
                                   catalog: cat);
   let release = find-package-release(cat, "json", $latest);
-  let saved-dylan = environment-variable($dylan-env-var);
+  let saved-dylan = os/environment-variable($dylan-env-var);
   block ()
-    environment-variable($dylan-env-var) := as(<byte-string>, dir);
+    os/environment-variable($dylan-env-var) := as(<byte-string>, dir);
     assert-false(installed?(release));
     install(release);
     assert-true(installed?(release));
-    let file = as(<file-locator>,
-                  format-to-string("%s/json/1.0.0/src/json.lid",
-                                   $package-directory-name));
-    let lid-path = merge-locators(file, dir);
-    assert-true(file-exists?(lid-path));
+    let lid-path
+      = file-locator(dir, $package-directory-name, "json", "1.0.0", "src", "json.lid");
+    assert-true(fs/file-exists?(lid-path));
     let versions = installed-versions(release.package-name);
     assert-equal(1, size(versions));
     assert-equal(map-as(<list>, identity, versions), list(release.release-version));
   cleanup
-    environment-variable($dylan-env-var) := saved-dylan;
+    os/environment-variable($dylan-env-var) := saved-dylan;
   end;
 end test;

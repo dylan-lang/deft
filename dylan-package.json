@@ -1,15 +1,15 @@
 {
     "name": "deft",
-    "version": "0.12.0",
+    "version": "0.13.0",
     "license": "MIT",
-    "category": "language-tools",
+    "category": "development tools",
     "contact": "dylan-lang@googlegroups.com",
     "description": "Manage Dylan workspaces, packages, and registries",
     "keywords": ["workspace", "package"],
     "dependencies": [
         "command-line-parser@3.1.1",
-        "json@1.0",
-        "logging@2.1",
+        "json@1.1",
+        "logging@2.2",
         "regular-expressions@0.2",
         "uncommon-dylan@0.2"
     ],

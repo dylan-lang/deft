@@ -8,7 +8,7 @@ define function main () => (status :: false-or(<integer>))
     parse-command-line(parser, application-arguments());
     *debug?* := get-option-value(parser, "debug");
     *verbose?* := get-option-value(parser, "verbose");
-    execute-command(parser);
+    execute-command(parser)
   exception (err :: <abort-command-error>)
     let status = exit-status(err);
     if (status ~= 0)

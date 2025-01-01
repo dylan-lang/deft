@@ -2,7 +2,7 @@ Module: dylan-user
 
 define library deft
   use collections,
-    import: { table-extensions };
+    import: { collectors, table-extensions };
   use command-line-parser;
   use dylan,
     import: { dylan-extensions, threads };
@@ -19,30 +19,39 @@ define library deft
 
   export
     deft,
-    pacman,
-    %pacman,
-    shared,
-    workspaces,
-    %workspaces;
+    deft-shared,
+    pacman, %pacman,
+    workspaces, %workspaces;
 end library;
 
-// Definitions used by all the other modules.
-define module shared
-  use format-out;
-  use operating-system, prefix: "os/";
-  use streams;
-  use strings;
-  use uncommon-dylan,
-    exclude: { format-out };
+// Utilities shared by all Deft modules, and also a set of shared imports.
+define module deft-shared
+  use collectors, export: all;
+  use command-line-parser, export: all;
+  use date, import: { current-date, <duration> }, export: all;
+  use dylan-extensions, import: { address-of }, export: all;
+  use file-source-records, prefix: "sr/", export: all;
+  use file-system, prefix: "fs/", export: all;
+  use format-out, export: all;
+  use format, export: all;
+  use json, export: all;
+  use locators, export: all;
+  use operating-system, prefix: "os/", export: all;
+  use print, export: all;
+  use regular-expressions, export: all;
+  use standard-io, export: all;
+  use streams, export: all;
+  use strings, export: all;
+  use threads, import: { dynamic-bind }, export: all;
+  use uncommon-dylan, export: all;
+  use uncommon-utils, export: all;
+
   export
     *debug?*,
     *verbose?*,
-    debug,
-    note,
-    verbose,
-    trace,
-    warn,
-    locate-dylan-compiler;
+    debug, note, verbose, trace, warn,
+    file-content,
+    load-json-file;
 end module;
 
 define module pacman
@@ -88,6 +97,7 @@ define module pacman
     release-dependencies,
     release-dev-dependencies,
     release-license,
+    release-package,
     release-to-string,
     release-url,
     release-version,
@@ -110,26 +120,8 @@ define module pacman
 end module;
 
 define module %pacman
-  use date,
-    import: { current-date, <duration> };
-  use file-system, prefix: "fs/";
-  use format;
-  use format-out;
-  use json;
-  use locators;
-  use operating-system, prefix: "os/";
-  use print;
-  use regular-expressions;
-  use shared;
-  use streams;
-  use strings;
-  use uncommon-dylan,
-    exclude: { format-out, format-to-string };
-  // Do we need this?
-  use uncommon-utils,
-    import: { elt, iff, <singleton-object>, value-sequence };
-
-  use pacman, export: all;
+  use deft-shared;
+  use pacman;
 
   // For the test suite.
   export
@@ -152,52 +144,35 @@ define module workspaces
     $dylan-package-file-name,
     $workspace-file-name,
     <workspace-error>,
+    workspace-error,
     <workspace>,
     active-package-directory,
     active-package-file,
     active-package?,
-    find-active-package-library-names,
+    current-dylan-package,
+    ensure-deps-installed,
     find-dylan-package-file,
-    find-library-names,
     find-workspace-directory,
     find-workspace-file,
+    library-name,
+    lids-by-active-package,
+    lids-by-library,
+    lids-by-pathname,
     load-workspace,
-    new,
-    source-file-map,
-    update,
+    registry-directory,
+    update-registry,
     workspace-active-packages,
     workspace-default-library-name,
-    workspace-directory,
-    workspace-registry-directory,
-    workspace-release;
+    workspace-directory;
 end module;
 
 define module %workspaces
-  use dylan-extensions,
-    import: { address-of };
-  use file-source-records, prefix: "sr/";
-  use file-system, prefix: "fs/";
-  use format;
-  use format-out;
-  use json;
-  use locators;
-  use operating-system, prefix: "os/";
+  use deft-shared;
+  use workspaces;
   use pacman,
     prefix: "pm/",
     // Because / followed by * is seen as a comment by dylan-mode.
     rename: { *package-manager-directory* => *package-manager-directory* };
-  use print;
-  use regular-expressions;
-  use shared;
-  use standard-io;
-  use streams;
-  use strings;
-  use threads;
-  use uncommon-dylan,
-    exclude: { format-out, format-to-string };
-  use uncommon-utils,
-    import: { err, iff, inc!, slice };
-  use workspaces;
 
   // Exports for the test suite.
   export
@@ -205,28 +180,15 @@ define module %workspaces
     lid-data,
     lid-value,
     lid-values,
-    parse-lid-file,
-    <registry>;
+    parse-lid-file;
 end module;
 
 define module deft
-  use command-line-parser;
-  use file-system, prefix: "fs/";
-  use format;
-  use format-out;
-  use json;
-  use locators;
-  use operating-system, prefix: "os/";
-  use pacman, prefix: "pm/";
-  use regular-expressions;
-  use shared;
-  use standard-io;
-  use streams;
-  use strings;
-  use uncommon-dylan,
-    exclude: { format-out, format-to-string };
-  use uncommon-utils,
-    import: { err, iff, inc!, slice };
+  use deft-shared;
+  use pacman,
+    prefix: "pm/",
+    // Because pm/*... is seen as a /* comment by dylan-mode.
+    rename: { *package-manager-directory* => *package-manager-directory* };
   use workspaces, prefix: "ws/";
 
   export

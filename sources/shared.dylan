@@ -1,4 +1,4 @@
-Module: shared
+Module: deft-shared
 
 
 // Whether to do verbose output. This is set based on the --verbose command
@@ -41,21 +41,25 @@ define inline function warn (fmt, #rest args) => ()
   apply(note, concat("WARNING: ", fmt), args);
 end;
 
+define function load-json-file (file :: <file-locator>) => (config :: <table>)
+  fs/with-open-file(stream = file, if-does-not-exist: #f)
+    let object = parse-json(stream, strict?: #f, table-class: <istring-table>);
+    if (~instance?(object, <table>))
+     error("Invalid JSON file %s, must contain at least {}", file);
+    end;
+    object
+  end
+end function;
 
-// Find the full path to dylan-compiler or signal an error.
-define function locate-dylan-compiler () => (dc :: <string>)
-  let output = with-output-to-string (stream)
-                 local method outputter (output, #key end: epos)
-                         write(stream, copy-sequence(output, end: epos));
-                       end;
-                 os/run-application("which dylan-compiler",
-                                    under-shell?: #t,
-                                    outputter: outputter);
-               end;
-  let lines = split-lines(output);
-  if (lines[0].size > 0)
-    lines[0]
-  else
-    error("dylan-compiler not found. Is it on your PATH?");
+// Read the full contents of a file and return it as a string.  If the file
+// doesn't exist return #f. (I thought if-does-not-exist: #f was supposed to
+// accomplish this without the need for block/exception.)
+define function file-content (path :: <locator>) => (text :: false-or(<string>))
+  block ()
+    fs/with-open-file(stream = path, if-does-not-exist: #"signal")
+      read-to-end(stream)
+    end
+  exception (fs/<file-does-not-exist-error>)
+    #f
   end
 end function;
