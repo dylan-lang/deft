@@ -18,6 +18,7 @@ Files: library.dylan
        commands/new-workspace.dylan
        commands/publish.dylan
        commands/status.dylan
+       commands/test.dylan
        commands/update.dylan
        commands/utils.dylan
        commands/version.dylan

@@ -40,22 +40,22 @@ define class <workspace> (<object>)
   slot workspace-default-library-name :: false-or(<string>) = #f;
 
   // These three %lids-by-* slots are computed lazily rather than in load-workspace
-  // because some deft commands don't need them.
+  // because some deft commands don't need them. They only contain the LIDs that match
+  // the current platform (see matches-current-platform?). They contain mappings for
+  // active package releases and dependency releases.
 
   // A map from library names to sequences of <lid>s that define the library.  (A library
-  // with platform-specific definitions may have multiple lids.)  There are mappings here
-  // for active package libraries and for dependency libraries.
+  // with platform-specific definitions may have multiple lids.)
   constant slot %lids-by-library :: <istring-table> = make(<istring-table>);
 
-  // A map from full absolute pathname of a LID file to the associated <lid>. There are
-  // mappings here for active package libraries and for dependency libraries.
+  // A map from full absolute pathname of a LID file to the associated <lid>.
   constant slot %lids-by-pathname :: <table>
-    //= make(<string-table>);   // works, but not correct
-    //= iff(os/$os-name == #"win32", make(<istring-table>), make(<string-table>));  // slot is set to #f!
-    = if (os/$os-name == #"win32") make(<istring-table>) else make(<string-table>) end; // works
+    = make(if (os/$os-name == #"win32") <istring-table> else <string-table> end);
 
-  // A map from active package <release> to a sequence of <lid>s it contains.
-  constant slot %lids-by-active-package :: <table> = make(<table>);
+  // A map from <release> to a sequence of <lid>s the release contains. Releases for
+  // active packages and dependencies are present. Only LIDs matching the current
+  // platform (based on the usual rules) are included.
+  constant slot %lids-by-release :: <table> = make(<table>);
 
   // Prevent infinite recursion when scanning a workspace that has no active packages.
   slot active-packages-scanned? :: <bool> = #f;
@@ -77,12 +77,17 @@ define function lids-by-pathname
   ws.%lids-by-pathname
 end function;
 
-define function lids-by-active-package
+define function lids-by-release
     (ws :: <workspace>) => (t :: <table>)
   if (~ws.active-packages-scanned?)
     scan-workspace(ws)
   end;
-  ws.%lids-by-active-package
+  ws.%lids-by-release
+end function;
+
+define function build-directory
+    (ws :: <workspace>) => (dir :: <directory-locator>)
+  subdirectory-locator(ws.workspace-directory, "_build")
 end function;
 
 define function registry-directory
@@ -121,8 +126,8 @@ end function;
 // populated and deps can be determined.
 define function scan-workspace
     (ws :: <workspace>) => ()
-  // First do active packages to populate %lids-by-active-package.
-  for (package in find-active-packages(ws.workspace-directory))
+  // First do active packages to populate %lids-by-release.
+  for (package in ws.workspace-active-packages)
     let directory = active-package-directory(ws, package);
     fs/do-directory(curry(scan-workspace-file, ws, package), directory);
   end;
@@ -174,7 +179,7 @@ define function load-workspace-config
   local method find-default-library ()
           block (return)
             let fallback = #f;
-            for (lids keyed-by package in ws.lids-by-active-package)
+            for (lids keyed-by package in ws.lids-by-release)
               for (lid in lids)
                 let name = lid.library-name;
                 fallback := fallback | name;
@@ -347,7 +352,7 @@ define function find-active-package-deps
   // Dev deps could go into deps, above, but they're kept separate so that
   // pacman can give more specific error messages.
   let dev-deps = make(<stretchy-vector>);
-  for (lids keyed-by release in ws.lids-by-active-package)
+  for (lids keyed-by release in ws.lids-by-release)
     actives[pm/package-name(release)] := release;
     for (dep in pm/release-dependencies(release))
       add-new!(deps, dep, test: \=)
@@ -362,4 +367,32 @@ define function find-active-package-deps
   let dev-deps = as(pm/<dep-vector>, dev-deps);
   let releases-to-install = pm/resolve-deps(cat, deps, dev-deps, actives);
   values(releases-to-install, actives)
+end function;
+
+// Find the names of all test libraries defined in the active packages within a
+// workspace. Returns a table mapping active package names to #(lib-name, exe-name,
+// target-type).
+define function find-active-package-test-libraries
+    (ws :: <workspace>, include-deps? :: <bool>) => (t :: <table>)
+  let t = make(<table>);
+  for (lids keyed-by release in ws.lids-by-release)
+    let keep = choose(method (lid)
+                        is-test-library?(lid.library-name | "")
+                          & (include-deps? | member?(release, ws.workspace-active-packages))
+                      end,
+                      lids);
+    if (~empty?(keep))
+      t[release] := keep;
+    end;
+  end for;
+  t
+end function;
+
+define function is-test-library? (name :: <string>) => (_ :: <bool>)
+  starts-with?(name, "test-")
+    | ends-with?(name, "-test")
+    | ends-with?(name, "-test-app")
+    | ends-with?(name, "-tests")
+    | ends-with?(name, "-test-suite")
+    | ends-with?(name, "-test-suite-app")
 end function;

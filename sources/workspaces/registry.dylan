@@ -48,18 +48,11 @@ end function;
 define function update-registry
     (ws :: <workspace>, releases :: <seq>, actives :: <istring-table>)
  => (total :: <int>, written :: <int>, no-platform-libs :: <seq>)
-  let current-platform = as(<string>, os/$platform-name);
   let total = 0;
   let written = 0;
   let no-platform = make(<stretchy-vector>);
   for (lids keyed-by library in ws.lids-by-library)
-    let candidates
-      = choose(method (lid)
-                 let platform = lid-value(lid, $platforms-key);
-                 platform = current-platform
-                   | (~platform & empty?(lid.lid-included-in))
-               end,
-               lids);
+    let candidates = choose(matches-current-platform?, lids);
     select (candidates.size)
       0 =>
         // We'll display these at the end, as a group.
@@ -71,7 +64,7 @@ define function update-registry
       otherwise =>
         warn("Library %= has multiple .lid files for platform %=.\n"
                "  %s\nRegistry will point to the first one, arbitrarily.",
-             library, current-platform,
+             library, as(<string>, os/$platform-name),
              join(candidates, "\n  ", key: method (lid)
                                              as(<string>, lid.lid-locator)
                                            end));

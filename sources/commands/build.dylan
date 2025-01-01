@@ -98,9 +98,11 @@ end function;
 define function active-package-libraries
     (ws :: ws/<workspace>) => (libraries :: <seq>)
   collecting ()
-    for (lids in ws/lids-by-active-package(ws))
-      for (lid in lids)
-        collect(ws/library-name(lid));
+    for (lids keyed-by release in ws/lids-by-release(ws))
+      if (ws/active-package?(ws, release.pm/package-name))
+        for (lid in lids)
+          collect(ws/library-name(lid));
+        end;
       end;
     end;
   end

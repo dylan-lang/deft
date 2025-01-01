@@ -49,8 +49,8 @@ define function lid-value
 end function;
 
 define function library-name
-    (lid :: <lid>) => (name :: false-or(<string>))
-  lid-value(lid, $library-key, error?: #f)
+    (lid :: <lid>, #key error? :: <bool>) => (name :: false-or(<string>))
+  lid-value(lid, $library-key, error?: error?)
 end function;
 
 // Return the transitive (via files included with the "LID" header) contents of
@@ -78,21 +78,31 @@ define function dylan-source-files
   files
 end function;
 
+define function matches-current-platform?
+    (lid :: <lid>) => (matches? :: <bool>)
+  let current-platform = as(<string>, os/$platform-name);
+  let platform = lid-value(lid, $platforms-key);
+  // Assume that if the LID is included in another LID then it contains the
+  // platform-independent attributes of a multi-platform project and is not a top-level
+  // library.
+  platform = current-platform
+    | (~platform & lid.library-name & empty?(lid.lid-included-in))
+end function;
+
 define function add-lid
     (ws :: <workspace>, active-package :: false-or(pm/<release>), lid :: <lid>)
  => ()
-  let library-name = lid-value(lid, $library-key);
-  if (library-name)
-    let lids = element(ws.%lids-by-library, library-name, default: #());
-    if (member?(lid, lids))
-      debug("Re-adding %s, all lids for this library: %=", lid, lids);
+  if (matches-current-platform?(lid))
+    let library = lid-value(lid, $library-key);
+    if (library)
+      let lids = element(ws.%lids-by-library, library, default: #());
+      ws.%lids-by-library[library] := pair(lid, lids);
     end;
-    ws.%lids-by-library[library-name] := pair(lid, lids);
-  end;
-  ws.%lids-by-pathname[as(<string>, lid.lid-locator)] := lid;
-  if (active-package)
-    let lids = element(ws.%lids-by-active-package, active-package, default: #());
-    ws.%lids-by-active-package[active-package] := pair(lid, lids);
+    ws.%lids-by-pathname[as(<string>, lid.lid-locator)] := lid;
+    if (active-package)
+      let lids = element(ws.%lids-by-release, active-package, default: #());
+      ws.%lids-by-release[active-package] := pair(lid, lids);
+    end;
   end;
 end function;
 
