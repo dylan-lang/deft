@@ -130,7 +130,7 @@ define function scan-workspace
   // Install dependencies and further update the %lids-by-* tables with them.
   let (releases, actives) = ensure-deps-installed(ws);
   for (release in releases)
-    let directory = active-package-directory(ws, pm/release-package(release));
+    let directory = pm/source-directory(release);
     fs/do-directory(curry(scan-workspace-file, ws, release), directory);
   end;
 end function;
