@@ -687,6 +687,7 @@ new version of your package (tests pass, doc updated, etc.) follow these steps:
           :file:`dylan-package.json` they will be removed from the catalog
           entry for *all releases* of your package.
 
+
 .. index::
    single: deft status subcommand
    single: subcommand; deft status
@@ -714,6 +715,53 @@ Synopsis: ``deft status``
       http                     : ## master...origin/master (dirty)
       deft                     : ## dev...master [ahead 2] (dirty)
       pacman-catalog           : ## publish...master [ahead 1] (dirty)
+
+
+.. index::
+   single: deft test subcommand
+   single: subcommand; deft test
+
+deft test
+---------
+
+Run tests for packages in the current workspace.
+
+Synopsis: ``deft test [options] [library ...] [--] [...testworks options...]``
+
+`deft test`_ determines which test binaries to run by choosing the first option below
+that is not empty.
+
+1. Library names that are passed on the command line.
+2. The library specified by ``"default-test-library"`` in the :file:`workspace.json`
+   file.
+3. Any executable test libraries in the workspace's active packages. (This assumes
+   that the executable will include the other test libraries in the package.)
+4. Any non-executable test libraries in the workspace's active packages.
+
+Executable test libraries are invoked directly (it is assumed that they call the
+Testworks `run-test-application`_ function) and non-executable test libraries are run via
+`testworks-run`_.  Any options following ``--`` on the command line are passed to the
+test executable or `testworks-run`_.
+
+If any test run fails `deft test`_ exits immediately with a failure status without
+running the tests in the remaining libraries.
+
+**Options:**
+
+``--build``
+  Rebuild test libraries before running the tests. The default is to rebuild; use
+  ``--no-build`` to disable the build and use the existing test binary.
+
+``--continue``
+  If a test binary fails, continue running the remaining test binaries instead of
+  exiting immediately with a failure status.
+
+``--all``
+  In addition to the active package tests, run tests for all dependencies. *Note
+  that there is no guarantee that the tests for all dependencies will be able to
+  compile without error because they themselves may have dependencies that can't
+  be satisfied. The prime example is if they depend on a different major version
+  of Open Dylan and its bundled libraries.*
 
 
 .. index::
@@ -789,3 +837,5 @@ Index and Search
 
 .. _pacman-catalog:    https://github.com/dylan-lang/pacman-catalog.git
 .. _semantic version:  https://semver.org/spec/v2.0.0.html
+.. _run-test-application: https://package.opendylan.org/testworks/reference.html#testworks:testworks:run-test-application
+.. _testworks-run:        https://package.opendylan.org/testworks/reference.html#testworks-run

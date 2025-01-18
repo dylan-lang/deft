@@ -10,3 +10,4 @@ files: test-suite-library.dylan
        workspaces/registry-test.dylan
        workspaces/workspaces-test.dylan
        test-suite.dylan
+Target-type: executable

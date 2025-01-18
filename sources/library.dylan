@@ -26,25 +26,25 @@ end library;
 
 // Utilities shared by all Deft modules, and also a set of shared imports.
 define module deft-shared
-  use collectors, export: all;
+  use collectors,          export: all;
   use command-line-parser, export: all;
-  use date, import: { current-date, <duration> }, export: all;
-  use dylan-extensions, import: { address-of }, export: all;
-  use file-source-records, prefix: "sr/", export: all;
-  use file-system, prefix: "fs/", export: all;
-  use format-out, export: all;
-  use format, export: all;
-  use json, export: all;
-  use locators, export: all;
-  use operating-system, prefix: "os/", export: all;
-  use print, export: all;
+  use date,                export: all, import: { current-date, <duration> };
+  use dylan-extensions,    export: all, import: { address-of };
+  use file-source-records, export: all, prefix: "sr/";
+  use file-system,         export: all, prefix: "fs/";
+  use format-out,          export: all;
+  use format,              export: all;
+  use json,                export: all;
+  use locators,            export: all;
+  use operating-system,    export: all, prefix: "os/";
+  use print,               export: all;
   use regular-expressions, export: all;
-  use standard-io, export: all;
-  use streams, export: all;
-  use strings, export: all;
-  use threads, import: { dynamic-bind }, export: all;
-  use uncommon-dylan, export: all;
-  use uncommon-utils, export: all;
+  use standard-io,         export: all;
+  use streams,             export: all;
+  use strings,             export: all;
+  use threads,             export: all, import: { dynamic-bind };
+  use uncommon-dylan,      export: all;
+  use uncommon-utils,      export: all;
 
   export
     *debug?*,
@@ -149,15 +149,20 @@ define module workspaces
     active-package-directory,
     active-package-file,
     active-package?,
+    build-directory,
     current-dylan-package,
     ensure-deps-installed,
+    find-active-package-test-libraries,
     find-dylan-package-file,
     find-workspace-directory,
     find-workspace-file,
     library-name,
-    lids-by-active-package,
+    <lid>,
+    lid-value,
+    lid-values,
     lids-by-library,
     lids-by-pathname,
+    lids-by-release,
     load-workspace,
     registry-directory,
     update-registry,
@@ -171,15 +176,13 @@ define module %workspaces
   use workspaces;
   use pacman,
     prefix: "pm/",
-    // Because / followed by * is seen as a comment by dylan-mode.
+    // Because pm/*... is seen as a /* comment by dylan-mode.
     rename: { *package-manager-directory* => *package-manager-directory* };
 
   // Exports for the test suite.
   export
     $lid-key,
     lid-data,
-    lid-value,
-    lid-values,
     parse-lid-file;
 end module;
 

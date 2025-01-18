@@ -51,8 +51,13 @@ define method execute-subcommand
   if (empty?(library-names))
     library-names
       := list(ws/workspace-default-library-name(ws)
-                | error("No libraries found in workspace and no"
-                          " default libraries configured."));
+                | if (all?)
+                    error("No libraries found in workspace and no"
+                            " default libraries configured.");
+                  else
+                    error("Please specify a library to build, use --all,"
+                            " or configure a default library.");
+                  end);
   end;
   for (name in library-names)
     // Let the shell locate dylan-compiler...
@@ -93,9 +98,11 @@ end function;
 define function active-package-libraries
     (ws :: ws/<workspace>) => (libraries :: <seq>)
   collecting ()
-    for (lids in ws/lids-by-active-package(ws))
-      for (lid in lids)
-        collect(ws/library-name(lid));
+    for (lids keyed-by release in ws/lids-by-release(ws))
+      if (ws/active-package?(ws, release.pm/package-name))
+        for (lid in lids)
+          collect(ws/library-name(lid));
+        end;
       end;
     end;
   end
