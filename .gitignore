@@ -1,3 +1,14 @@
+# Ignore backup files
 *~
-_build
-build
+
+# Ignore compiler build
+/_build/
+
+# Ignore documentation build
+/documentation/build/
+
+# Ignore package dependencies
+/_packages/
+
+# Ignore registry
+/registry/

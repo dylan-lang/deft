@@ -26,6 +26,9 @@ define constant $build-subcommand
                 make(<flag-option>,
                      names: #("unify", "u"),
                      help: "Combine libraries into a single executable."),
+		make(<flag-option>,
+		     names: #("verbose", "v"),
+		     help: "Show verbose output"),
                 make(<positional-option>,
                      names: #("libraries"),
                      help: "Libraries to build.",
@@ -67,6 +70,7 @@ define method execute-subcommand
                          get-option-value(subcmd, "clean") & "-clean",
                          get-option-value(subcmd, "link") & "-link",
                          get-option-value(subcmd, "unify") & "-unify",
+			 get-option-value(subcmd, "verbose") & "-verbose",
                          name),
                     #f),
              " ");
