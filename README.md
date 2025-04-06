@@ -4,11 +4,19 @@
 [![GitHub issues](https://img.shields.io/github/issues/dylan-lang/deft?color=blue)](https://github.com/dylan-lang/deft/issues)
 [![Matrix](https://img.shields.io/matrix/dylan-lang-general:matrix.org?color=blue&label=Chat%20on%20Matrix&server_fqdn=matrix.org)](https://app.element.io/#/room/#dylan-language:matrix.org)
 
+Deft is a tool for developing Dylan code which aspires to meet with [Fernando Borretti's
+approval](https://borretti.me/article/language-tooling-antipatterns). Basically that
+means it aspires to be similar to Cargo, apparently.
+
+For Dylan, this specifically means:
+
+* Make it easy to find relevant libraries
 * Manage project dependencies
 * No more editing registry files
 * No more Git submodules
-* Build/test from anywhere in your workspace
+* Build (and test [TODO]) from anywhere in your workspace
 * Create boilerplate for new projects
+* Create reference docs for your project [TODO]
 
 Deft simplifies the management of Dylan workspaces and packages and
 provides a simplified interface to the Open Dylan compiler for building and
