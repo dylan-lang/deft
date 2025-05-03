@@ -62,7 +62,8 @@ define method execute-subcommand
     let lid-map = ws/find-active-package-test-libraries(ws, all?);
     if (lid-map.empty?)
       warn("No libraries found in workspace? No tests to run.");
-      return(1);
+      exit-status := 1;
+      return();
     end;
     let exes = #();
     let dlls = #();
@@ -114,7 +115,8 @@ define method execute-subcommand
             let status = os/run-application(command, under-shell?: #f, working-directory: ws-dir);
             if (status ~== 0)
               if (~get-option-value(subcmd, "continue"))
-                return(1);
+                exit-status := 1;
+                return();
               end;
               exit-status := 1;
             end;
