@@ -3,6 +3,7 @@ Module: dylan-user
 define library deft
   use collections,
     import: { collectors, table-extensions };
+  use columnist;
   use command-line-parser;
   use dylan,
     import: { dylan-extensions, threads };
@@ -187,6 +188,7 @@ define module %workspaces
 end module;
 
 define module deft
+  use columnist;
   use deft-shared;
   use pacman,
     prefix: "pm/",

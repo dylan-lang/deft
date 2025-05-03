@@ -60,9 +60,7 @@ define function list-catalog
     end;
   let cat = pm/catalog();
   let packages = pm/load-all-catalog-packages(cat);
-  // %8s is to handle versions like 2020.1.0
-  note("  %8s %8s  %-20s  %s",
-       "Inst.", "Latest", "Package", "Description");
+  let rows = make(<stretchy-vector>);
   for (package in sort(packages, test: package-<))
     let name = pm/package-name(package);
     let versions = pm/installed-versions(name, head?: #f);
@@ -70,14 +68,20 @@ define function list-catalog
     let package = pm/find-package(cat, name);
     let latest = pm/find-package-release(cat, name, pm/$latest);
     if (all? | latest-installed)
-      note("%c %8s %8s  %-20s  %s",
-           iff(latest-installed
-                 & (latest-installed < pm/release-version(latest)),
-               '!', ' '),
-           latest-installed | "-",
-           pm/release-version(latest),
-           name,
-           brief-description(pm/package-description(package)));
+      add!(rows, vector(iff(latest-installed
+                              & (latest-installed < pm/release-version(latest)),
+                            "!", ""),
+                        latest-installed | "-",
+                        pm/release-version(latest) | "",
+                        name,
+                        pm/package-description(package)));
     end;
-  end;
+  end for;
+  columnize(*standard-output*,
+            vector(make(<column>),
+                   make(<column>, header: "Inst."),
+                   make(<column>, header: "Latest"),
+                   make(<column>, header: "Name"),
+                   make(<column>, header: "Description", pad?: #f, maximum-width: 50)),
+            rows);
 end function;
