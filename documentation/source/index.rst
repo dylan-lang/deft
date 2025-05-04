@@ -741,7 +741,7 @@ that is not empty.
 Executable test libraries are invoked directly (it is assumed that they call the
 Testworks `run-test-application`_ function) and non-executable test libraries are run via
 `testworks-run`_.  Any options following ``--`` on the command line are passed to the
-test executable or `testworks-run`_.
+test executable (which is sometimes `testworks-run`_).
 
 If any test run fails `deft test`_ exits immediately with a failure status without
 running the tests in the remaining libraries.
@@ -757,11 +757,12 @@ running the tests in the remaining libraries.
   exiting immediately with a failure status.
 
 ``--all``
-  In addition to the active package tests, run tests for all dependencies. *Note
-  that there is no guarantee that the tests for all dependencies will be able to
-  compile without error because they themselves may have dependencies that can't
-  be satisfied. The prime example is if they depend on a different major version
-  of Open Dylan and its bundled libraries.*
+  In addition to the active package tests, run tests for all dependencies.
+
+  .. note:: There is no guarantee that the tests for all dependencies will be able to
+            compile without error because they themselves may have dependencies that
+            can't be satisfied. The prime example is if the dependency's tests depend on
+            a different major version of Open Dylan and its bundled libraries.
 
 
 .. index::
