@@ -11,13 +11,13 @@ git_version := $(shell git describe --tags --always --match 'v*')
 # an issue.
 build:
 	dylan update
-	file="sources/commands/utils.dylan"; \
+	file="sources/commands/version.dylan"; \
 	  orig=$$(mktemp); \
 	  temp=$$(mktemp); \
 	  cp -p $${file} $${orig}; \
-	  cat $${file} | sed "s,/.__./.*/.__./,/*__*/ \"${git_version}\ built on $$(date -Iseconds)\" /*__*/,g" > $${temp}; \
+	  cat $${file} | sed "s|_NO_VERSION_SET_|${git_version} built on $$(date -Iseconds)|g" > $${temp}; \
 	  mv $${temp} $${file}; \
-	  OPEN_DYLAN_USER_REGISTRIES=${PWD}/registry dylan-compiler -build deft-app; \
+	  dylan build deft-app; \
 	  cp -p $${orig} $${file}
 
 install: build
