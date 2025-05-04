@@ -5,10 +5,11 @@ Synopsis: test subcommand
 // on the library name to figure out which libraries are test libraries (see
 // test-library-name?).
 
-// Some workspaces (especially multi-package libraries) may have both test executables
+// Some workspaces (especially multi-library packages) may have both test executables
 // (e.g., foo-test-app) and test shared libraries.  In that case we only run the
 // executables, on the assumption that they will take care of running all the tests.
-// Otherwise it could result in running some tests multiple times.
+// Otherwise it could result in running some tests multiple times.  (The hope is that as
+// `deft test` is used more there will be no need to create test apps at all.)
 
 // If any test run fails `deft test` exits immediately with a failure status without
 // running the tests in the remaining libraries.
@@ -85,9 +86,12 @@ define method execute-subcommand
     end for;
     let ws-dir = ws/workspace-directory(ws);
     if (build?)
-      do(rcurry(build-library, "executable", ws-dir), exes);
-      ~empty?(dlls) & build-testworks-run(ws-dir);
-      do(rcurry(build-library, "dll", ws-dir), dlls);
+      if (~empty?(exes))
+        do(rcurry(build-library, "executable", ws-dir), exes);
+      elseif (~empty?(dlls))
+        build-testworks-run(ws-dir);
+        do(rcurry(build-library, "dll", ws-dir), dlls);
+      end;
     end;
     local method run-test (lid :: ws/<lid>, exe?)
             let library = ws/library-name(lid);
@@ -121,8 +125,11 @@ define method execute-subcommand
               exit-status := 1;
             end;
           end method;
-    do(rcurry(run-test, #t), exes);
-    do(rcurry(run-test, #f), dlls);
+    if (~empty?(exes))
+      do(rcurry(run-test, #t), exes);
+    elseif (~empty?(dlls))
+      do(rcurry(run-test, #f), dlls);
+    end;
     if (exes.size + dlls.size < libraries.size)
       warn("Some tests specified on the command-line were not found.");
     end;
