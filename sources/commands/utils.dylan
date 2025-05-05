@@ -2,14 +2,10 @@ Module: deft
 Synopsis: Utilities for use by deft commands
 
 
-// This string is replaced by Git filters on checkout. See the .gitattributes file.
-define constant $deft-version :: <string> = "DEVELOPMENT_VERSION";
-
-
-// Run an executable or shell command. `command` may be a string or a sequence of
-// strings. If a string it is run with `/bin/sh -c`. If a sequence of strings the first
-// element is the executable pathname. Returns the exit status of the command and the
-// combined output to stdout and stderr.
+// Run an executable or shell command. `command` may be a string or a sequence
+// of strings. If a string it is run with `/bin/sh -c`. If a sequence of
+// strings the first element is the executable pathname. Returns the exit
+// status of the command and the combined output to stdout and stderr.
 define function run
     (command :: <seq>, #key working-directory :: false-or(<directory-locator>))
  => (status :: <int>, output :: <string>)

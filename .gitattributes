@@ -1,5 +1,0 @@
-# To actually use this filter you must run the following commands in the top-level Def directory.
-#   git config filter.version.smudge ./scripts/version-smudge.sh
-#   git config filter.version.clean ./scripts/version-clean.sh
-# There is no way to configure that for all users of the repo.
-sources/commands/utils.dylan filter=version
