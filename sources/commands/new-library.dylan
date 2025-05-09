@@ -22,6 +22,31 @@ define constant $deps-option
            " version. pkg@1.2 means a specific version. The test"
            " suite executable automatically depends on testworks.");
 
+define constant $git-flag-option
+  = make(<flag-option>,
+         names: #("git"),
+         help: "Create a .gitignore file with default values",
+         default: #f);
+
+define constant $git-gitignore
+  = #:string:"# backup files
+*~
+*.bak
+.DS_Store
+
+# project file
+*.hdp
+
+# compiler build directory
+_build/
+
+# dylan tool package cache
+_packages/
+
+# package registry folder
+registry/
+";
+
 // deft new application foo http json ...
 define constant $new-application-subcommand
   = make(<new-application-subcommand>,
@@ -39,6 +64,7 @@ define constant $new-application-subcommand
                      help: "Create only an executable library, without"
                        " a corresponding shared library or test suite.",
                      default: #f),
+                $git-flag-option,
                 $deps-option));
 
 // deft new library foo http json ...
@@ -53,6 +79,7 @@ define constant $new-library-subcommand
                 make(<positional-option>,
                      names: #("name"),
                      help: "Name of the library"),
+                $git-flag-option,
                 $deps-option));
 
 define method execute-subcommand
@@ -61,11 +88,13 @@ define method execute-subcommand
   let name = get-option-value(subcmd, "name");
   let dep-specs = get-option-value(subcmd, "deps") | #[];
   let force-package? = get-option-value(subcmd, "force-package");
+  let git? = get-option-value(subcmd, "git");
   new-library(name,
               dependencies: dep-specs,
               executable?: #t,
               force-package?: force-package?,
-              simple?: get-option-value(subcmd, "simple"));
+              simple?: get-option-value(subcmd, "simple"),
+              git?: git?);
   0
 end method;
 
@@ -75,10 +104,12 @@ define method execute-subcommand
   let name = get-option-value(subcmd, "name");
   let dep-specs = get-option-value(subcmd, "deps") | #[];
   let force-package? = get-option-value(subcmd, "force-package");
+  let git? = get-option-value(subcmd, "git");
   new-library(name,
               dependencies: dep-specs,
               executable?: #f,
-              force-package?: force-package?);
+              force-package?: force-package?,
+              git?: git?);
   0
 end method;
 
@@ -91,7 +122,7 @@ define function new-library
     (name :: <string>,
      #key directory :: <directory-locator> = fs/working-directory(),
           dependencies :: <seq> = #[], executable? :: <bool>,
-          force-package? :: <bool>, simple? :: <bool>)
+          force-package? :: <bool>, simple? :: <bool>, git? :: <bool>)
   if (~regex-search($library-name-regex, name))
     error("%= is not a valid Dylan library name."
             " Names are one or more words separated by hyphens, for example"
@@ -105,7 +136,7 @@ define function new-library
   // Parse dep specs before writing any files, in case of errors.
   let deps = parse-dep-specs(dependencies);
   make-dylan-library(name, lib-dir, executable?,
-                     deps, force-package?, simple?);
+                     deps, force-package?, simple?, git?);
 end function;
 
 // Creates source files for a new library (app or shared lib), its
@@ -335,7 +366,7 @@ end function;
 // Write files for various libraries based on the args.
 define function make-dylan-library
     (name :: <string>, dir :: <directory-locator>, exe? :: <bool>, deps :: <seq>,
-     force-package? :: <bool>, simple? :: <bool>)
+     force-package? :: <bool>, simple? :: <bool>, git? :: <bool>)
   local method dep-string (dep)
           format-to-string("%=", pm/dep-to-string(dep))
         end;
@@ -407,6 +438,12 @@ define function make-dylan-library
       else
         base-library-templates
       end;
+  if (git?)
+    templates := add(templates, 
+                     make(<template>, 
+                          output-file: file(".gitignore"),
+                          format-string: $git-gitignore))
+  end;
   let pkg-file = ws/find-dylan-package-file(dir);
   let old-pkg-file = pkg-file & simplify-locator(pkg-file);
   let new-pkg-file = simplify-locator(file(ws/$dylan-package-file-name));
