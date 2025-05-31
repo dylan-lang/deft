@@ -19,31 +19,31 @@ define constant $deps-option
          repeated?: #t,
          help: "Package dependencies in the form pkg@version."
            " 'pkg' with no version gets the current latest"
-           " version. pkg@1.2 means a specific version. The test"
-           " suite executable automatically depends on testworks.");
+           " version. pkg@1.2 means a specific version. The generated test"
+           " suite automatically depends on testworks.");
 
 define constant $git-flag-option
   = make(<flag-option>,
          names: #("git"),
-         help: "Create a .gitignore file with default values",
+         help: "Create a .gitignore file with default values.",
          default: #f);
 
-define constant $git-gitignore
+define constant $git-gitignore-template
   = #:string:"# backup files
 *~
 *.bak
 .DS_Store
 
-# project file
+# auto-generated project file
 *.hdp
 
 # compiler build directory
 _build/
 
-# dylan tool package cache
+# Deft-generated package cache
 _packages/
 
-# package registry folder
+# Deft-generated registry folder
 registry/
 ";
 
@@ -246,9 +246,9 @@ end function;
 //// shared library.
 
 define constant $exe-lid-template
-  = #:string:"Library: %s-app
-Files: %s-app-library.dylan
-       %s-app.dylan
+  = #:string:"Library: %s
+Files: library.dylan
+       main.dylan
 Target-Type: executable
 ";
 
@@ -257,13 +257,13 @@ define constant $exe-library-definition-template
   = #:string:"Module: dylan-user
 Synopsis: Module and library definition for executable application
 
-define library %s-app
+define library %s
   use common-dylan;
   use %s;
   use io, import: { format-out };
 end library;
 
-define module %s-app
+define module %s
   use common-dylan;
   use format-out;
   use %s;
@@ -291,20 +291,20 @@ main(application-name(), application-arguments());
 define constant $test-lid-template
   = #:string:"Library: %s-test-suite
 Files: library.dylan
-       %s-test-suite.dylan
+       %s-tests.dylan
 Target-Type: executable
 ";
 
 define constant $test-library-definition-template
   = #:string:'Module: dylan-user
 
-define library %s-test-suite
+define library %s
   use common-dylan;
   use testworks;
   use %s;
 end library;
 
-define module %s-test-suite
+define module %s
   use common-dylan;
   use testworks;
   use %s;
@@ -313,7 +313,7 @@ end module;
 ';
 
 define constant $test-main-code-template
-  = #:string:'Module: %s-test-suite
+  = #:string:'Module: %s
 
 define test test-$greeting ()
   assert-equal("Hello world!", $greeting);
@@ -345,104 +345,127 @@ define constant $dylan-package-file-template
 }
 ';
 
+
 define class <template> (<object>)
-  constant slot format-string :: <string>, required-init-keyword: format-string:;
-  constant slot format-arguments :: <seq> = #(), init-keyword: format-arguments:;
-  constant slot output-file :: <file-locator>, required-init-keyword: output-file:;
-  constant slot library-name :: false-or(<string>) = #f, init-keyword: library-name:;
+  constant slot %format-string :: <string>, required-init-keyword: format-string:;
+  constant slot %format-arguments :: <seq> = #(), init-keyword: format-arguments:;
+  constant slot %output-file :: <file-locator>, required-init-keyword: output-file:;
+  constant slot %library-name :: false-or(<string>) = #f, init-keyword: library-name:;
 end class;
 
 define function write-template
     (template :: <template>) => ()
-  fs/ensure-directories-exist(template.output-file);
-  fs/with-open-file (stream = template.output-file,
+  fs/ensure-directories-exist(template.%output-file);
+  fs/with-open-file (stream = template.%output-file,
                      direction: #"output",
                      if-does-not-exist: #"create",
                      if-exists: #"error")
-    apply(format, stream, template.format-string, template.format-arguments);
+    apply(format, stream, template.%format-string, template.%format-arguments);
   end;
 end function;
 
-// Write files for various libraries based on the args.
+// Write project files. `library-name` is the name of the library specified on the
+// command line. If --simple was used then `library-name` is the name of the executable,
+// otherwise it's the name of the main shared library.
 define function make-dylan-library
-    (name :: <string>, dir :: <directory-locator>, exe? :: <bool>, deps :: <seq>,
+    (library-name :: <string>, dir :: <directory-locator>, exe? :: <bool>, deps :: <seq>,
      force-package? :: <bool>, simple? :: <bool>, git? :: <bool>)
   local method dep-string (dep)
           format-to-string("%=", pm/dep-to-string(dep))
         end;
   let file = curry(file-locator, dir);
-  let test-file = curry(file-locator, dir, "tests");
-  let test-name = concat(name, "-test-suite");
   let deps-string = join(map-as(<vector>, dep-string, deps), ", ");
-  let base-library-templates
-    = list(make(<template>,
-                library-name: name,
-                output-file: file(concat(name, ".lid")),
-                format-string: $lib-lid-template,
-                format-arguments: list(name, name)),
-           make(<template>,
-                output-file: file("library.dylan"),
-                format-string: $lib-library-definition-template,
-                format-arguments: list(name, name, name, name, name, name)),
-           make(<template>,
-                output-file: file(concat(name, ".dylan")),
-                format-string: $lib-main-code-template,
-                format-arguments: list(name)),
-           // Test library files...
-           make(<template>,
-                library-name: test-name,
-                output-file: test-file(concat(test-name, ".lid")),
-                format-string: $test-lid-template,
-                format-arguments: list(name, name)),
-           make(<template>,
-                output-file: test-file("library.dylan"),
-                format-string: $test-library-definition-template,
-                format-arguments: list(name, name, name, name, name)),
-           make(<template>,
-                output-file: test-file(concat(test-name, ".dylan")),
-                format-string: $test-main-code-template,
-                format-arguments: list(name, name)));
-  let app-templates
-    = list(make(<template>,
-                library-name: concat(name, "-app"),
-                output-file: file(concat(name, "-app.lid")),
-                format-string: $exe-lid-template,
-                format-arguments: list(name, name, name)),
-           make(<template>,
-                output-file: file(concat(name, "-app-library.dylan")),
-                format-string: $exe-library-definition-template,
-                format-arguments: list(name, name, name, name)),
-           make(<template>,
-                output-file: file(concat(name, "-app.dylan")),
-                format-string: $exe-main-template,
-                format-arguments: list(name)));
-  let simple-app-templates
-    = list(make(<template>,
-                library-name: name,
-                output-file: file(concat(name, ".lid")),
-                format-string: $simple-exe-lid-template,
-                format-arguments: list(name, name)),
-           make(<template>,
-                output-file: file("library.dylan"),
-                format-string: $simple-exe-library-definition-template,
-                format-arguments: list(name, name)),
-           make(<template>,
-                output-file: file(concat(name, ".dylan")),
-                format-string: $simple-exe-main-template,
-                format-arguments: list(name)));
+  let exe-name = iff(simple?,
+                     library-name,
+                     concat(library-name, "-app"));
+  let gitignore-template
+    = make(<template>,
+           output-file: file(".gitignore"),
+           format-string: $git-gitignore-template,
+           format-arguments: list());
+  // dylan-package-json is handled specially, so it's not in top-templates.
+  // TODO: README, LICENSE, ...
   let templates
     = if (simple?)
-        simple-app-templates    // no test suite, no shared library
-      elseif (exe?)
-        concat(base-library-templates, app-templates)
+        // With the --simple flag just output exe app code at top level.
+        // No test suite, no shared library, no documentation.
+        list(make(<template>,
+                  library-name: library-name,
+                  output-file: file(concat(library-name, ".lid")),
+                  format-string: $simple-exe-lid-template,
+                  format-arguments: list(library-name, library-name)),
+             make(<template>,
+                  output-file: file("library.dylan"),
+                  format-string: $simple-exe-library-definition-template,
+                  format-arguments: list(library-name, library-name)),
+             make(<template>,
+                  output-file: file(concat(library-name, ".dylan")),
+                  format-string: $simple-exe-main-template,
+                  format-arguments: list(library-name)))
       else
-        base-library-templates
+        // We really need a generic template library that accepts a <string-table> or
+        // plist with which to specify the template parameters....
+        let app-templates
+          = list(make(<template>,
+                      library-name: exe-name,
+                      output-file: file("src", "app", concat(exe-name, ".lid")),
+                      format-string: $exe-lid-template,
+                      format-arguments: list(exe-name)),
+                 make(<template>,
+                      output-file: file("src", "app", "library.dylan"),
+                      format-string: $exe-library-definition-template,
+                      format-arguments: list(exe-name, library-name, exe-name,
+                                             library-name)),
+                 make(<template>,
+                      output-file: file("src", "app", "main.dylan"),
+                      format-string: $exe-main-template,
+                      format-arguments: list(library-name)),
+                 make(<template>,
+                      output-file: file("Makefile"),
+                      format-string: $makefile-template,
+                      format-arguments: list(exe-name, library-name, library-name,
+                                             exe-name, library-name, library-name,
+                                             library-name, library-name, library-name,
+                                             library-name, library-name, library-name)));
+        let lib-templates
+          = list(make(<template>,
+                      library-name: library-name,
+                      output-file: file("src", "lib", concat(library-name, ".lid")),
+                      format-string: $lib-lid-template,
+                      format-arguments: list(library-name, library-name)),
+                 make(<template>,
+                      output-file: file("src", "lib", "library.dylan"),
+                      format-string: $lib-library-definition-template,
+                      format-arguments: list(library-name, library-name, library-name,
+                                             library-name, library-name, library-name)),
+                 make(<template>,
+                      output-file: file("src", "lib", concat(library-name, ".dylan")),
+                      format-string: $lib-main-code-template,
+                      format-arguments: list(library-name)));
+        let test-library-name
+          = concat(library-name, "-test-suite");
+        let test-templates
+          = list(make(<template>,
+                      library-name: test-library-name,
+                      output-file: file("src", "tests", concat(test-library-name, ".lid")),
+                      format-string: $test-lid-template,
+                      format-arguments: list(library-name, library-name)),
+                 make(<template>,
+                      output-file: file("src", "tests", "library.dylan"),
+                      format-string: $test-library-definition-template,
+                      format-arguments: list(test-library-name, library-name,
+                                             test-library-name, library-name,
+                                             library-name)),
+                 make(<template>,
+                      output-file: file("src", "tests", concat(library-name, "-tests.dylan")),
+                      format-string: $test-main-code-template,
+                      format-arguments: list(test-library-name)));
+        concat(iff(exe?, app-templates, #()),
+               lib-templates,
+               test-templates)
       end;
   if (git?)
-    templates := add(templates, 
-                     make(<template>, 
-                          output-file: file(".gitignore"),
-                          format-string: $git-gitignore))
+    templates := add(templates, gitignore-template);
   end;
   let pkg-file = ws/find-dylan-package-file(dir);
   let old-pkg-file = pkg-file & simplify-locator(pkg-file);
@@ -461,11 +484,11 @@ define function make-dylan-library
              make(<template>,
                   output-file: new-pkg-file,
                   format-string: $dylan-package-file-template,
-                  format-arguments: list(deps-string, name)));
+                  format-arguments: list(deps-string, library-name)));
   end;
   for (template in templates)
     write-template(template);
-    let name = template.library-name;
+    let name = template.%library-name;
     if (name)
       note("Created library %s.", name)
     end;
@@ -495,3 +518,41 @@ define function parse-dep-specs
          end,
          specs)
 end function;
+
+// This is at the end of the file until we can use multi-line string syntax (i.e., a
+// release after 2024.1) because it breaks dylan-mode code hightlighting.
+define constant $makefile-template
+  = #:string:[
+DYLAN	?= $${HOME}/dylan
+
+.PHONY: build install test dist clean distclean
+
+build:
+	deft update
+	deft build %s
+
+install: build
+	mkdir -p $(DYLAN)/bin
+	mkdir -p $(DYLAN)/install/%s/bin
+	mkdir -p $(DYLAN)/install/%s/lib
+	cp _build/bin/%s $(DYLAN)/install/%s/bin/%s
+	cp -r _build/lib/lib* $(DYLAN)/install/%s/lib/
+	ln -s -f $$(realpath $(DYLAN)/install/%s/bin/%s) $(DYLAN)/bin/%s
+
+test:
+	deft update
+	deft test
+
+dist: distclean install
+
+clean:
+	rm -rf _packages
+	rm -rf registry
+	rm -rf _build
+	rm -rf _test
+	rm -rf *~
+
+distclean: clean
+	rm -rf $(DYLAN)/install/%s
+	rm -f $(DYLAN)/bin/%s
+];
