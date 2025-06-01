@@ -333,7 +333,7 @@ run-test-application()
 define constant $dylan-package-file-template
   = #:string:'{
     "dependencies": [ %s ],
-    "dev-dependencies": [ "testworks" ],
+    "dev-dependencies": [ %s ],
     "description": "YOUR DESCRIPTION HERE",
     "name": %=,
     "version": "0.1.0",
@@ -370,19 +370,7 @@ end function;
 define function make-dylan-library
     (library-name :: <string>, dir :: <directory-locator>, exe? :: <bool>, deps :: <seq>,
      force-package? :: <bool>, simple? :: <bool>, git? :: <bool>)
-  local method dep-string (dep)
-          format-to-string("%=", pm/dep-to-string(dep))
-        end;
   let file = curry(file-locator, dir);
-  let deps-string = join(map-as(<vector>, dep-string, deps), ", ");
-  let exe-name = iff(simple?,
-                     library-name,
-                     concat(library-name, "-app"));
-  let gitignore-template
-    = make(<template>,
-           output-file: file(".gitignore"),
-           format-string: $git-gitignore-template,
-           format-arguments: list());
   // dylan-package-json is handled specially, so it's not in top-templates.
   // TODO: README, LICENSE, ...
   let templates
@@ -405,6 +393,9 @@ define function make-dylan-library
       else
         // We really need a generic template library that accepts a <string-table> or
         // plist with which to specify the template parameters....
+        let exe-name = iff(simple?,
+                           library-name,
+                           concat(library-name, "-app"));
         let app-templates
           = list(make(<template>,
                       library-name: exe-name,
@@ -465,7 +456,11 @@ define function make-dylan-library
                test-templates)
       end;
   if (git?)
-    templates := add(templates, gitignore-template);
+    templates
+      := add(templates, make(<template>,
+                             output-file: file(".gitignore"),
+                             format-string: $git-gitignore-template,
+                             format-arguments: list()));
   end;
   let pkg-file = ws/find-dylan-package-file(dir);
   let old-pkg-file = pkg-file & simplify-locator(pkg-file);
@@ -479,12 +474,17 @@ define function make-dylan-library
     verbose("Edit %s if you need to change dependencies or if you plan"
               " to publish this library as a package.",
             new-pkg-file);
+    local method dep-string (dep)
+            format-to-string("%=", pm/dep-to-string(dep))
+          end;
+    let deps = join(map-as(<vector>, dep-string, deps), ", ");
+    let dev-deps = iff(simple?, "", "\"testworks\"");
     templates
       := add(templates,
              make(<template>,
                   output-file: new-pkg-file,
                   format-string: $dylan-package-file-template,
-                  format-arguments: list(deps-string, library-name)));
+                  format-arguments: list(deps, dev-deps, library-name)));
   end;
   for (template in templates)
     write-template(template);
