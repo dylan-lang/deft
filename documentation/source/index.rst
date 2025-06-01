@@ -4,7 +4,7 @@
 deft - The Dylan CLI
 ********************
 
-The :program:`deft` command-line tool is intended to make Dylan development
+The :program:`deft` command-line tool makes Dylan development
 easier by taking care of some of the drudgery for you, including:
 
 * managing Dylan workspaces and package dependencies
@@ -195,12 +195,13 @@ to this::
 and then run `deft update`_ again::
 
     $ deft update
-    Workspace directory is /home/you/dylan/workspaces/hello-world/.
-    Updated 1 file in /home/you/dylan/workspaces/hello-world/registry/.
+    Downloaded base64@0.3.0 to /home/you/hello-world/_packages/base64/0.3.0/src/
+    Updated 2 of 20 registry files in /home/you/hello-world/registry/.
+
 
 Note that we didn't specify a version for "base64", so the latest version is downloaded.
-Usually it's a good idea to specify a particular version, like "base64\@0.1".  Take a
-look at "registry/<your-platform>/base64" to see where the package was installed.
+For serious projects it's a good idea to specify a particular version, like "base64\@0.3"
+so that dependencies don't change unexpectedly when new versions are released.
 
 We also haven't actually changed the hello-world code to use base64. That is
 left as an exercise. (Modify :file:`library.dylan` and run ``deft build -a`` again.)
@@ -210,11 +211,11 @@ Now that you've got a working project, try some other :program:`deft`
 
 * `deft status`_ tells you the status of the active packages. It will find the
   ``hello-world`` package but will complain that it's not a Git repository. Run
-  ``git init`` in it if you like.
+  ``git init`` if you like.
 
 * `deft list`_ with ``--all`` lists all the packages in the catalog. (Note
   that many libraries are still included with Open Dylan. They'll be moved to
-  packages eventually.)
+  separate packages in the future.)
 
 
 .. index::
@@ -530,11 +531,33 @@ http version 1.0 and the latest version of logging. ::
   $ _build/bin/killer-test-suite
   $ _build/bin/killer-app
 
-You must run ``deft update`` whenever dependencies are changed, to install the
-new dependencies and update the registry files.
+.. note:: The executable is named "killer-app" because it can't have the same name as the
+          shared library, "killer". The compiler would complain that "killer" depends on
+          itself. Instead, a :file:`Makefile` is generated for the purpose of renaming the
+          executable file to "killer" during installation. Just run ``make install``.
+
+          You may of course rename the executable to "killer" and the shared library to
+          "killer-lib" or whatever you like.  Naming is hard.
+
+You must run `deft update`_ whenever dependencies are changed, to install the new
+dependencies and update the registry files.
 
 **See also:** `deft new library`_
 
+**Options:**
+
+``--force-package``, ``-p``
+  Create :file:`dylan-package.json` even if already inside a package. This is
+  intended for testing and continuous integration use.
+
+``--git``
+  Generate a ``.gitignore`` file. The default is false.
+
+``--simple``
+  Generate only an executable application, without a separate shared library or
+  test suite. This also generates all files in the top-level directory. This option
+  is intended to be useful for making "throw away" libraries for learning or testing
+  purposes.
 
 .. index::
    single: deft new library subcommand
@@ -548,7 +571,8 @@ Generate code for a new shared library.
 Synopsis: ``deft new library [options] <name> [<dependency> ...]``
 
 This command is the same as `deft new application`_ except that it doesn't
-generate the corresponding ``<name>-app`` executable library.
+generate the corresponding ``<name>-app`` executable library or the associated
+:file:`Makefile`.
 
 Specifying dependencies is optional. They should be in the same form as
 specified in the :file:`dylan-package.json` file. For example, "strings\@1.0".
@@ -560,8 +584,8 @@ This command generates the following code:
 * A :file:`dylan-package.json` file (unless this new library is being added to
   an existing package).
 
-You must run ``deft update`` whenever dependencies are changed, to install
-the new dependencies and update the registry files.
+You must run `deft update`_ whenever dependencies are changed, to install the new
+dependencies and update the registry files.
 
 **See also:** `deft new application`_
 
@@ -570,6 +594,9 @@ the new dependencies and update the registry files.
 ``--force-package``, ``-p``
   Create :file:`dylan-package.json` even if already inside a package. This is
   intended for testing and continuous integration use.
+
+``--git``
+  Generate a ``.gitignore`` file. The default is false.
 
 Here's an example of creating a library named "http" which depends on "strings"
 version 1.0 and the latest version of "logging". ::
@@ -602,8 +629,8 @@ Synopsis: ``deft new workspace [options] <name>``
 
 **Options:**
 
-``--directory``
-  Create the workspace under this directory instead of in the current working
+``--directory=DIR``
+  Create the workspace under ``DIR`` instead of in the current working
   directory.
 
 `deft new workspace`_ creates a new workspace directory and initializes it

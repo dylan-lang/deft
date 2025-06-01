@@ -14,13 +14,13 @@ For Dylan, this specifically means:
 * Manage project dependencies
 * No more editing registry files
 * No more Git submodules
-* Build (and test [TODO]) from anywhere in your workspace
-* Create boilerplate for new projects
+* Build and test from anywhere in your workspace
+* Create application, library, and test suite boilerplate for new projects
 * Create reference docs for your project [TODO]
 
 Deft simplifies the management of Dylan workspaces and packages and
-provides a simplified interface to the Open Dylan compiler for building and
-(soon) testing and generating documentation. It eliminates the need to manage
+provides a simplified interface to the Open Dylan compiler for building,
+testing, and generating documentation. It eliminates the need to manage
 library locations (registries) by hand and the need to use Git submodules to
 track dependencies.
 
