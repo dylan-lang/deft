@@ -337,9 +337,9 @@ define constant $dylan-package-file-template
     "description": "YOUR DESCRIPTION HERE",
     "name": %=,
     "version": "0.1.0",
-    "url": "https://github.com/YOUR-ORG-HERE/YOUR-REPO-HERE",
+    "url": "https://github.com/%s/%s",
     "keywords": [ ],
-    "contact": "",
+    "contact": "https://github.com/%s/%s/issues",
     "license": "",
     "license-url": ""
 }
@@ -484,7 +484,8 @@ define function make-dylan-library
              make(<template>,
                   output-file: new-pkg-file,
                   format-string: $dylan-package-file-template,
-                  format-arguments: list(deps, dev-deps, library-name)));
+                  format-arguments: list(deps, dev-deps, library-name, os/login-name(),
+                                         library-name, os/login-name(), library-name)));
   end;
   for (template in templates)
     write-template(template);
