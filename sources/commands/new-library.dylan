@@ -137,6 +137,80 @@ define function new-library
   let deps = parse-dep-specs(dependencies);
   make-dylan-library(name, lib-dir, executable?,
                      deps, force-package?, simple?, git?);
+  unless (simple?)
+    generate-sphinx-doc(name, lib-dir);
+  end;
+end function;
+
+// Generate Sphinx doc boilerplate in a "doc" subdirectory by shelling out to
+// "sphinx-quickstart".
+define function generate-sphinx-doc
+    (library-name :: <string>, dir :: <directory-locator>) => (exit-status :: <int>)
+  let doc-dir = subdirectory-locator(dir, "doc");
+  let command = join(vector("sphinx-quickstart",
+                            "--sep", // separate build and source dirs
+                            "--project", library-name,
+                            "--author", os/login-name() | "Unknown",
+                            "-v", "0.1.0",
+                            "--extensions", "dylan.domain",
+                            "--quiet", // do not ask questions
+                            as(<string>, doc-dir)),
+                     " ");
+  let stream = make(<string-stream>, direction: #"output");
+  let exit-status
+    = os/run-application(command,
+                         under-shell?: #t, // So PATH lookup is performed
+                         outputter: method (buf, #key end: _end)
+                                      write(stream, buf, end: _end)
+                                    end);
+  if (zero?(exit-status))
+    dylanize-sphinx-config(file-locator(doc-dir, "source", "conf.py"));
+    note("Created Sphinx doc scaffolding in %s.", doc-dir);
+  else
+    warn("Unable to generate documentation boilerplate due to an error when"
+           " running the sphinx-quickstart command.\n"
+           "Command: %s\n"
+           "Exit status: %=\n"
+           "Output: %s",
+         command,
+         exit-status,
+         stream-contents(stream));
+  end;
+  exit-status
+end function;
+
+// Modify doc/source/conf.py to import dylan.domain and use the Furo theme.
+define function dylanize-sphinx-config
+    (config-file :: <file-locator>) => ()
+  let lines = fs/with-open-file (stream = config-file, direction: #"input")
+                iterate loop (lines = #())
+                  let line = read-line(stream, on-end-of-stream: #f);
+                  iff(line,
+                      loop(pair(line, lines)),
+                      reverse(lines))
+                end
+              end;
+  fs/with-open-file (stream = config-file, direction: #"output", if-exists: #"replace")
+    iterate loop (lines = lines, imports-done? = #f)
+      if (~empty?(lines))
+        let line = head(lines);
+        if (~imports-done? & ~starts-with?(line, "#"))
+          imports-done? := #t;
+          write(stream,
+                "\nimport os, sys\n"
+                  "sys.path.insert(0, os.path.abspath('../../_packages/sphinx-extensions/current/src/sphinxcontrib'))\n"
+                  "import dylan.domain\n");
+        end;
+        if (starts-with?(line, "html_theme ="))
+          write(stream, "html_theme = 'furo'");
+        else
+          write(stream, line);
+        end;
+        new-line(stream);
+        loop(tail(lines), imports-done?)
+      end if;
+    end iterate;
+  end;
 end function;
 
 // Creates source files for a new library (app or shared lib), its
@@ -485,7 +559,8 @@ define function make-dylan-library
                   output-file: new-pkg-file,
                   format-string: $dylan-package-file-template,
                   format-arguments: list(deps, dev-deps, library-name, os/login-name(),
-                                         library-name, os/login-name(), library-name)));
+                                         library-name, os/login-name() | "Unknown",
+                                         library-name)));
   end;
   for (template in templates)
     write-template(template);
