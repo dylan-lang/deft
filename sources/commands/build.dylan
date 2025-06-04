@@ -62,12 +62,16 @@ define method execute-subcommand
                             " or configure a default library.");
                   end);
   end;
+  if (get-option-value(subcmd, "clean"))
+    let _build = ws/build-directory(ws);
+    verbose("Deleting directory %s due to -clean flag.", _build);
+    fs/delete-directory(_build, recursive?: #t);
+  end;
   for (name in library-names)
     // Let the shell locate dylan-compiler...
     let command
       = join(remove(list("dylan-compiler",
                          "-compile",
-                         get-option-value(subcmd, "clean") & "-clean",
                          get-option-value(subcmd, "link") & "-link",
                          get-option-value(subcmd, "unify") & "-unify",
 			 get-option-value(subcmd, "verbose") & "-verbose",
