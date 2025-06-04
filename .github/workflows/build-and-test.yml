@@ -31,11 +31,17 @@ jobs:
           mkdir -p ${DYLAN}
           make test
 
-      - name: Install
+      - name: Install Deft
         run: |
           export DYLAN="$(realpath dylan-root)"
           mkdir -p ${DYLAN}
           make install
+
+      - name: Install Sphinx
+        run: pip install -U sphinx
+
+      - name: Install Furo theme
+        run: pip install furo
 
       - name: Exercise deft
         run: |
@@ -48,3 +54,5 @@ jobs:
           deft list
           deft build abc-test-suite
           _build/bin/abc-test-suite
+          cd doc
+          make html
