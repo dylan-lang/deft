@@ -93,15 +93,18 @@ define function add-lid
     (ws :: <workspace>, active-package :: false-or(pm/<release>), lid :: <lid>)
  => ()
   if (matches-current-platform?(lid))
-    let library = lid-value(lid, $library-key);
-    if (library)
-      let lids = element(ws.%lids-by-library, library, default: #());
-      ws.%lids-by-library[library] := pair(lid, lids);
-    end;
-    ws.%lids-by-pathname[as(<string>, lid.lid-locator)] := lid;
-    if (active-package)
-      let lids = element(ws.%lids-by-release, active-package, default: #());
-      ws.%lids-by-release[active-package] := pair(lid, lids);
+    let path = as(<string>, lid.lid-locator);
+    unless (element(ws.%lids-by-pathname, path, default: #f))
+      ws.%lids-by-pathname[path] := lid;
+      let library = lid-value(lid, $library-key);
+      if (library)
+        let lids = element(ws.%lids-by-library, library, default: #());
+        ws.%lids-by-library[library] := pair(lid, lids);
+      end;
+      if (active-package)
+        let lids = element(ws.%lids-by-release, active-package, default: #());
+        ws.%lids-by-release[active-package] := pair(lid, lids);
+      end;
     end;
   end;
 end function;
