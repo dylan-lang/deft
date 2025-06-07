@@ -179,7 +179,7 @@ define function generate-sphinx-doc
   exit-status
 end function;
 
-// Modify doc/source/conf.py to import dylan.domain and use the Furo theme.
+// Modify doc/source/conf.py to import dylan.domain etc.
 define function dylanize-sphinx-config
     (config-file :: <file-locator>) => ()
   let lines = fs/with-open-file (stream = config-file, direction: #"input")
@@ -190,20 +190,29 @@ define function dylanize-sphinx-config
                       reverse(lines))
                 end
               end;
+  let imports = "\n"
+                  "import os, sys\n"
+                  "sys.path.insert(0, os.path.abspath('../../_packages/sphinx-extensions/current/src/sphinxcontrib'))\n"
+                  "import dylan.domain\n";
+  // We can't just append to the file because we want to replace the html_theme setting
+  // and imports need to come before 'extensions' is processed.
   fs/with-open-file (stream = config-file, direction: #"output", if-exists: #"replace")
     iterate loop (lines = lines, imports-done? = #f)
-      if (~empty?(lines))
+      if (empty?(lines))
+        // Write whatever extra Dylan config we need at the end of the file.
+        write(stream,
+              "\n"
+                "# -- Standard settings for Dylan documentation --------------------------\n"
+                "primary_domain = 'dylan'\n"
+                "html_theme = 'furo'\n");
+      else
         let line = head(lines);
-        if (~imports-done? & ~starts-with?(line, "#"))
+        // Write imports after top comment.
+        when (~imports-done? & ~starts-with?(line, "#"))
+          write(stream, imports);
           imports-done? := #t;
-          write(stream,
-                "\nimport os, sys\n"
-                  "sys.path.insert(0, os.path.abspath('../../_packages/sphinx-extensions/current/src/sphinxcontrib'))\n"
-                  "import dylan.domain\n");
         end;
-        if (starts-with?(line, "html_theme ="))
-          write(stream, "html_theme = 'furo'");
-        else
+        unless (starts-with?(line, "html_theme "))
           write(stream, line);
         end;
         new-line(stream);
