@@ -304,6 +304,19 @@ package dependencies for you.
           registry files specifically for the current platform, e.g.,
           ``x86_64-linux``.
 
+Git Submodules
+--------------
+
+It generally shouldn't be necessary to use Git submodules when using Deft. In fact, if
+your workspace has a submodule which is also pulled in as a package dependency it will
+confuse Deft because it will find multiple LID files for the same library. In that case
+Deft will issue a warning and choose one arbitrarily.  Use the package instead of a
+submodule.
+
+If you need to pull in some code from another repository that doesn't have a Deft package
+there should be no conflict.
+
+
 Platform-specific Libraries
 ---------------------------
 
