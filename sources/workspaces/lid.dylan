@@ -81,12 +81,12 @@ end function;
 define function matches-current-platform?
     (lid :: <lid>) => (matches? :: <bool>)
   let current-platform = as(<string>, os/$platform-name);
-  let platform = lid-value(lid, $platforms-key);
-  // Assume that if the LID is included in another LID then it contains the
+  let platforms = lid-values(lid, $platforms-key) | #[];
+  // Assume that if the LID is included in another LID then it contains only the
   // platform-independent attributes of a multi-platform project and is not a top-level
   // library.
-  platform = current-platform
-    | (~platform & lid.library-name & empty?(lid.lid-included-in))
+  member?(current-platform, platforms, test: \=)
+    | (empty?(platforms) & lid.library-name & empty?(lid.lid-included-in))
 end function;
 
 define function add-lid
