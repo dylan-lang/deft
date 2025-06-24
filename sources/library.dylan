@@ -44,7 +44,7 @@ define module deft-shared
   use streams,             export: all;
   use strings,             export: all;
   use threads,             export: all, import: { dynamic-bind };
-  use uncommon-dylan,      export: all;
+  use uncommon-dylan,      export: all, exclude: { format-out, format-to-string };
   use uncommon-utils,      export: all;
 
   export
