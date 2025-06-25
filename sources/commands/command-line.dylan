@@ -13,7 +13,7 @@ define function deft-command-line
   make(<command-line-parser>,
        help:
          format-to-string("Dylan dev swiss army knife - %s\n"
-                            "https://opendylan.org/package/deft/index.html",
+                            "https://package.opendylan.org/deft/index.html",
                           $deft-version),
        options:
          list(make(<flag-option>,
