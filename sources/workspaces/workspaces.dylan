@@ -119,7 +119,29 @@ define function load-workspace
                                         & dp-file
                                         & (ws-file.locator-directory ~= dp-file.locator-directory))));
   ws-file & load-workspace-config(ws, ws-file);
+  if (~ws.workspace-default-library-name)
+    ws.workspace-default-library-name := find-default-library(ws);
+  end;
   ws
+end function;
+
+define function find-default-library
+    (ws :: <workspace>) => (name :: false-or(<string>))
+  block (return)
+    let fallback = #f;
+    for (lids keyed-by package in ws.lids-by-release)
+      for (lid in lids)
+        let name = lid.library-name;
+        fallback := fallback | name;
+        if (ends-with?(name, "-test-suite-app")
+              | ends-with?(name, "-test-suite")
+              | ends-with?(name, "-tests"))
+          return(name);
+        end;
+      end for;
+    end for;
+    fallback
+  end block
 end function;
 
 // Scan the workspace to find all active packages, from which the lids-by-* tables are
@@ -176,26 +198,11 @@ end function;
 // Load the workspace.json file
 define function load-workspace-config
     (ws :: <workspace>, file :: <file-locator>) => ()
-  local method find-default-library ()
-          block (return)
-            let fallback = #f;
-            for (lids keyed-by package in ws.lids-by-release)
-              for (lid in lids)
-                let name = lid.library-name;
-                fallback := fallback | name;
-                if (ends-with?(name, "-test-suite-app")
-                      | ends-with?(name, "-test-suite")
-                      | ends-with?(name, "-tests"))
-                  return(name);
-                end;
-              end for;
-            end for;
-            fallback
-          end block;
-        end method;
   let json = load-json-file(file);
-  ws.workspace-default-library-name
-    := element(json, $default-library-key, default: #f) | find-default-library();
+  let deflib = element(json, $default-library-key, default: #f);
+  if (deflib)
+    ws.workspace-default-library-name := deflib;
+  end;
 end function;
 
 // Find the workspace directory. The nearest directory containing
