@@ -206,7 +206,7 @@ define function validate-catalog
   // A reusable memoization cache (release => result).
   let cache = make(<table>);
   let packages = if (cached?)
-                   value-sequence(cat.catalog-package-cache)
+                   table-values(cat.catalog-package-cache)
                  else
                    load-all-catalog-packages(cat)
                  end;

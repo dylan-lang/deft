@@ -188,7 +188,7 @@ define function resolve-deps
           end;
         end;
       end;
-      let releases = as(<list>, value-sequence(maxima));
+      let releases = as(<list>, table-values(maxima));
       %trace(depth, releases, "<= %s", releases);
     end method;
   block ()

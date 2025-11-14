@@ -45,3 +45,10 @@ define function dylan-directory
   end
 end function;
 
+define function table-values (t :: <table>) => (vs :: <seq>)
+  let vals = make(<vector>, size: t.size);
+  for (i from 0, v in t)
+    vals[i] := v;
+  end;
+  vals
+end function;
