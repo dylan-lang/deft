@@ -43,6 +43,7 @@ define module deft-shared
   use standard-io,         export: all;
   use streams,             export: all;
   use strings,             export: all;
+  use table-extensions,    export: all;
   use threads,             export: all, import: { dynamic-bind };
   use uncommon-dylan,      export: all, exclude: { format-out, format-to-string };
   use uncommon-utils,      export: all;

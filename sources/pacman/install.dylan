@@ -85,7 +85,7 @@ define function ensure-current-link
   let exists? = fs/file-exists?(link-source, follow-links?: #f);
   let target = as(<string>, release-directory(release));
   if (ends-with?(target, "/") | ends-with?(target, "\\"))
-    target := copy-sequence(target, end: target.size - 1);
+    target := copy-seq(target, end: target.size - 1);
   end;
   let existing-target = exists? & fs/link-target(link-source);
   if (exists? & (target ~= as(<string>, existing-target)))
@@ -198,7 +198,7 @@ define function installed-versions
               exception (fs/<file-system-error>)
                 #[]
               end;
-  let versions = make(<stretchy-vector>);
+  let versions = make(<vector*>);
   for (file in files)
     if (instance?(file, <directory-locator>))
       let name = locator-name(file);

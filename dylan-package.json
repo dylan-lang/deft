@@ -12,7 +12,7 @@
         "json@1.1",
         "logging@2.2",
         "regular-expressions@0.2",
-        "uncommon-dylan@0.2"
+        "uncommon-dylan@1.0"
     ],
     "dev-dependencies": [
         "sphinx-extensions",

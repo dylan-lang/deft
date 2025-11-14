@@ -49,8 +49,8 @@ define function list-catalog
           end;
         end iterate;
         case
-          pos => copy-sequence(text, end: pos);
-          space => concat(copy-sequence(text, end: space), "...");
+          pos => copy-seq(text, end: pos);
+          space => concat(copy-seq(text, end: space), "...");
           otherwise => text;
         end
       end if
@@ -60,7 +60,7 @@ define function list-catalog
     end;
   let cat = pm/catalog();
   let packages = pm/load-all-catalog-packages(cat);
-  let rows = make(<stretchy-vector>);
+  let rows = make(<vector*>);
   for (package in sort(packages, test: package-<))
     let name = pm/package-name(package);
     let versions = pm/installed-versions(name, head?: #f);
