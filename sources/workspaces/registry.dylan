@@ -50,7 +50,7 @@ define function update-registry
  => (total :: <int>, written :: <int>, no-platform-libs :: <seq>)
   let total = 0;
   let written = 0;
-  let no-platform = make(<stretchy-vector>);
+  let no-platform = make(<vector*>);
   for (lids keyed-by library in ws.lids-by-library)
     let candidates = choose(matches-current-platform?, lids);
     select (candidates.size)

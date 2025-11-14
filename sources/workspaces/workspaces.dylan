@@ -355,10 +355,10 @@ define function find-active-package-deps
     (ws :: <workspace>, cat :: pm/<catalog>, #key dev?)
  => (releases :: <seq>, actives :: <istring-table>)
   let actives = make(<istring-table>);
-  let deps = make(<stretchy-vector>);
+  let deps = make(<vector*>);
   // Dev deps could go into deps, above, but they're kept separate so that
   // pacman can give more specific error messages.
-  let dev-deps = make(<stretchy-vector>);
+  let dev-deps = make(<vector*>);
   for (lids keyed-by release in ws.lids-by-release)
     actives[pm/package-name(release)] := release;
     for (dep in pm/release-dependencies(release))

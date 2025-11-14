@@ -33,7 +33,7 @@ define constant $uncategorized = "Uncategorized";
 
 define constant $pacman-catalog-release :: <release>
   = begin
-      let releases = make(<stretchy-vector>);
+      let releases = make(<vector*>);
       let package = make(<package>,
                          name: "pacman-catalog",
                          releases: releases,
@@ -120,7 +120,7 @@ end function;
 
 define function load-all-catalog-packages
     (cat :: <catalog>) => (packages :: <seq>)
-  let packages = make(<stretchy-vector>);
+  let packages = make(<vector*>);
   local
     method load-one (dir, name, type)
       select (type)
@@ -206,7 +206,7 @@ define function validate-catalog
   // A reusable memoization cache (release => result).
   let cache = make(<table>);
   let packages = if (cached?)
-                   value-sequence(cat.catalog-package-cache)
+                   table-values(cat.catalog-package-cache)
                  else
                    load-all-catalog-packages(cat)
                  end;
@@ -253,8 +253,8 @@ define method package-locator
               2 => subdirectory-locator(root, "2");
               otherwise =>
                 subdirectory-locator(root,
-                                     copy-sequence(name, end: 2),
-                                     copy-sequence(name, start: 2, end: min(4, name.size)))
+                                     copy-seq(name, end: 2),
+                                     copy-seq(name, start: 2, end: min(4, name.size)))
             end;
   file-locator(dir, name)
 end method;

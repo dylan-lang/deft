@@ -20,7 +20,7 @@ define class <lid> (<object>)
 
   // Sequence of other <lid>s in which this <lid> is included via the "LID:"
   // keyword.
-  constant slot lid-included-in :: <seq> = make(<stretchy-vector>);
+  constant slot lid-included-in :: <seq> = make(<vector*>);
 end class;
 
 define method print-object

@@ -273,7 +273,7 @@ define class <package> (<object>)
   // back-pointer to the package it's a part of. Currently it is possible for
   // the <head> version to be at the beginning of this sequence, but the plan
   // is to only allow <semantic-version>s.
-  constant slot package-releases :: <stretchy-vector> = make(<stretchy-vector>),
+  constant slot package-releases :: <vector*> = make(<vector*>),
     init-keyword: releases:;
 
   // Description of the package. Should be relatively concise; as yet unclear,

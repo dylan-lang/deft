@@ -68,7 +68,7 @@ define method execute-subcommand
     end;
     let exes = #();
     let dlls = #();
-    let seen-libraries = make(<stretchy-vector>);
+    let seen-libraries = make(<vector*>);
     for (lids keyed-by release in lid-map)
       let lids = filter-to-command-line-libraries(lids);
       let _exes = choose(is-exe-library?, lids);
