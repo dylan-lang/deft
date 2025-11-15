@@ -37,7 +37,7 @@ define class <workspace> (<object>)
     init-keyword: multi-package?:;
 
   // Default library to build, for the LSP server to open, etc.
-  slot workspace-default-library-name :: false-or(<string>) = #f;
+  slot %default-library-name :: false-or(<string>) = #f;
 
   // These three %lids-by-* slots are computed lazily rather than in load-workspace
   // because some deft commands don't need them. They only contain the LIDs that match
@@ -60,6 +60,12 @@ define class <workspace> (<object>)
   // Prevent infinite recursion when scanning a workspace that has no active packages.
   slot active-packages-scanned? :: <bool> = #f;
 end class;
+
+define function workspace-default-library-name
+    (ws :: <workspace>) => (name :: <string?>)
+  ws.%default-library-name
+    | (ws.%default-library-name := find-default-library(ws));
+end function;
 
 define function lids-by-library
     (ws :: <workspace>) => (t :: <istring-table>)
@@ -119,9 +125,6 @@ define function load-workspace
                                         & dp-file
                                         & (ws-file.locator-directory ~= dp-file.locator-directory))));
   ws-file & load-workspace-config(ws, ws-file);
-  if (~ws.workspace-default-library-name)
-    ws.workspace-default-library-name := find-default-library(ws);
-  end;
   ws
 end function;
 
@@ -201,7 +204,7 @@ define function load-workspace-config
   let json = load-json-file(file);
   let deflib = element(json, $default-library-key, default: #f);
   if (deflib)
-    ws.workspace-default-library-name := deflib;
+    ws.%default-library-name := deflib;
   end;
 end function;
 
