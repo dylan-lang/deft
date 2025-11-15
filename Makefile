@@ -10,14 +10,14 @@ git_version := $(shell git describe --tags --always --match 'v*')
 # just build with "deft build" so the unnecessary rebuilds that this would cause aren't
 # an issue.
 build:
-	dylan update
+	deft update
 	file="sources/commands/version.dylan"; \
 	  orig=$$(mktemp); \
 	  temp=$$(mktemp); \
 	  cp -p $${file} $${orig}; \
 	  cat $${file} | sed "s|_NO_VERSION_SET_|${git_version} built on $$(date -Iseconds)|g" > $${temp}; \
 	  mv $${temp} $${file}; \
-	  dylan build deft-app; \
+	  deft build deft-app; \
 	  cp -p $${orig} $${file}
 
 install: build
@@ -35,9 +35,8 @@ install: build
 	ln -s -f $$(realpath $(DYLAN)/install/deft/bin/deft) $(DYLAN)/bin/dylan
 
 test:
-	dylan update
-	OPEN_DYLAN_USER_REGISTRIES=${PWD}/registry dylan-compiler -build deft-test-suite \
-	  && _build/bin/deft-test-suite
+	deft update
+	deft test
 
 dist: distclean install
 
@@ -46,7 +45,7 @@ clean:
 	rm -rf registry
 	rm -rf _build
 	rm -rf _test
-	rm -rf *~
+	find . -name '*~' -exec rm -f {} \;
 
 distclean: clean
 	rm -rf $(DYLAN)/install/deft
