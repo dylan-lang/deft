@@ -29,6 +29,7 @@ define function update-workspace
                         *package-manager-directory*,
                         subdirectory-locator(ws/workspace-directory(ws),
                                              pm/$package-directory-name)))
+    verbose("Package directory: %s", pm/package-manager-directory());
     let (releases, actives) = ws/ensure-deps-installed(ws);
     let (total :: <int>, written :: <int>, no-platform :: <seq>)
       = ws/update-registry(ws, releases, actives);
