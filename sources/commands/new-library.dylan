@@ -29,23 +29,25 @@ define constant $git-flag-option
          default: #f);
 
 define constant $git-gitignore-template
-  = #:string:"# backup files
-*~
-*.bak
-.DS_Store
+  = #r"""
+    # backup files
+    *~
+    *.bak
+    .DS_Store
 
-# auto-generated project file
-*.hdp
+    # auto-generated project file
+    *.hdp
 
-# compiler build directory
-_build/
+    # compiler build directory
+    _build/
 
-# Deft-generated package cache
-_packages/
+    # Deft-generated package cache
+    _packages/
 
-# Deft-generated registry folder
-registry/
-";
+    # Deft-generated registry folder
+    registry/
+
+    """;
 
 // deft new application foo http json ...
 define constant $new-application-subcommand
@@ -222,211 +224,268 @@ define function dylanize-sphinx-config
   end;
 end function;
 
-// Creates source files for a new library (app or shared lib), its
-// corresponding test library app, and a dylan-package.json file.
-
-// Define #:string: syntax.
-define function string-parser (s) s end;
-
 
 //// Templates for a "simple" executable app with no shared library or test
 //// suite. For this one we don't add "-app" to the name of the library. The
 //// idea is that this is for quick, one-off apps like benchmarks and such.
 
 define constant $simple-exe-lid-template
-  = #:string:"Library: %s
-Files: library.dylan
-       %s.dylan
-Target-Type: executable
-";
+  = #r""""
+    Library: %s
+    Files: library.dylan
+           %s.dylan
+    Target-Type: executable
+
+    """";
 
 // library.dylan file for an simple executable library.
 define constant $simple-exe-library-definition-template
-  = #:string:"Module: dylan-user
-Synopsis: Module and library definition for simple executable application
+  = #r""""
+    Module: dylan-user
+    Synopsis: Module and library definition for simple executable application
 
-define library %s
-  use common-dylan;
-  use io, import: { format-out };
-end library;
+    define library %s
+      use common-dylan;
+      use io, import: { format-out };
+    end library;
 
-define module %s
-  use common-dylan;
-  use format-out;
-end module;
-";
+    define module %s
+      use common-dylan;
+      use format-out;
+    end module;
+
+    """";
 
 define constant $simple-exe-main-template
-  = #:string:'Module: %s
+  = #r""""
+    Module: %s
 
-define function main
-    (name :: <string>, arguments :: <vector>)
-  format-out("Hello, world!\n");
-  exit-application(0);
-end function;
+    define function main
+        (name :: <string>, arguments :: <vector>)
+      format-out("Hello, world!\n");
+      exit-application(0);
+    end function;
 
-// Calling our top-level function (which may have any name) is the last
-// thing we do.
-main(application-name(), application-arguments());
-';
+    // Calling our top-level function (which may have any name) is the last
+    // thing we do.
+    main(application-name(), application-arguments());
+
+    """";
 
 
 //// Shared library templates.
 
 define constant $lib-lid-template
-  = #:string:"Library: %s
-Files: library.dylan
-       %s.dylan
-Target-Type: dll
-";
+  = #r""""
+    Library: %s
+    Files: library.dylan
+           %s.dylan
+    Target-Type: dll
+
+    """";
 
 define constant $lib-library-definition-template
-  = #:string:'Module: dylan-user
+  = #r""""
+    Module: dylan-user
 
-define library %s
-  use common-dylan;
-  use io, import: { format-out };
+    define library %s
+      use common-dylan;
+      use io, import: { format-out };
 
-  export
-    %s,
-    %s-impl;
-end library;
+      export
+        %s,
+        %s-impl;
+    end library;
 
-// Interface module creates public API, ensuring that an implementation
-//  module exports them.
-define module %s
-  create
-    greeting;                   // Example. Delete me.
-end module;
+    // Interface module creates public API, ensuring that an implementation
+    //  module exports them.
+    define module %s
+      create
+        greeting;                   // Example. Delete me.
+    end module;
 
-// Implementation module implements definitions for names created by the
-// interface module and exports names for use by test suite.  %%foo, foo-impl,
-// or foo-internal are common names for an implementation module.
-define module %s-impl
-  use common-dylan;
-  use %s;                  // Declare that we will implement "greeting".
+    // Implementation module implements definitions for names created by the
+    // interface module and exports names for use by test suite.  %%foo, foo-impl,
+    // or foo-internal are common names for an implementation module.
+    define module %s-impl
+      use common-dylan;
+      use %s;                  // Declare that we will implement "greeting".
 
-  // Additional exports for use by test suite.
-  export
-    $greeting;                  // Example code. Delete me.
-end module;
-';
+      // Additional exports for use by test suite.
+      export
+        $greeting;                  // Example code. Delete me.
+    end module;
+
+    """";
 
 define constant $lib-main-code-template
-  = #:string:'Module: %s-impl
+  = #r""""
+    Module: %s-impl
 
-// Internal
-define constant $greeting = "Hello world!";
+    // Internal
+    define constant $greeting = "Hello world!";
 
-// Exported
-define function greeting () => (s :: <string>)
-  $greeting
-end function;
-';
+    // Exported
+    define function greeting () => (s :: <string>)
+      $greeting
+    end function;
+
+    """";
 
 
 //// Templates for a full executable library that is designed to use the base
 //// shared library.
 
 define constant $exe-lid-template
-  = #:string:"Library: %s
-Files: library.dylan
-       main.dylan
-Target-Type: executable
-";
+  = #r""""
+    Library: %s
+    Files: library.dylan
+           main.dylan
+    Target-Type: executable
+
+    """";
 
 // library.dylan file for an non-simple executable library.
 define constant $exe-library-definition-template
-  = #:string:"Module: dylan-user
-Synopsis: Module and library definition for executable application
+  = #r""""
+    Module: dylan-user
+    Synopsis: Module and library definition for executable application
 
-define library %s
-  use common-dylan;
-  use %s;
-  use io, import: { format-out };
-end library;
+    define library %s
+      use common-dylan;
+      use %s;
+      use io, import: { format-out };
+    end library;
 
-define module %s
-  use common-dylan;
-  use format-out;
-  use %s;
-end module;
-";
+    define module %s
+      use common-dylan;
+      use format-out;
+      use %s;
+    end module;
+
+    """";
 
 // Main program for the executable.
 define constant $exe-main-template
-  = #:string:'Module: %s-app
+  = #r""""
+    Module: %s-app
 
-define function main
-    (name :: <string>, arguments :: <vector>)
-  format-out("%%s\n", greeting());
-  exit-application(0);
-end function;
+    define function main
+        (name :: <string>, arguments :: <vector>)
+      format-out("%%s\n", greeting());
+      exit-application(0);
+    end function;
 
-// Calling our main function (which could have any name) should be the last
-// thing we do.
-main(application-name(), application-arguments());
-';
+    // Calling our main function (which could have any name) should be the last
+    // thing we do.
+    main(application-name(), application-arguments());
+
+    """";
 
 
 //// Templates for test suite library.
 
 define constant $test-lid-template
-  = #:string:"Library: %s-test-suite
-Files: library.dylan
-       %s-tests.dylan
-Target-Type: executable
-";
+  = #r""""
+    Library: %s-test-suite
+    Files: library.dylan
+           %s-tests.dylan
+    Target-Type: executable
+
+    """";
 
 define constant $test-library-definition-template
-  = #:string:'Module: dylan-user
+  = #r""""
+    Module: dylan-user
 
-define library %s
-  use common-dylan;
-  use testworks;
-  use %s;
-end library;
+    define library %s
+      use common-dylan;
+      use testworks;
+      use %s;
+    end library;
 
-define module %s
-  use common-dylan;
-  use testworks;
-  use %s;
-  use %s-impl;
-end module;
-';
+    define module %s
+      use common-dylan;
+      use testworks;
+      use %s;
+      use %s-impl;
+    end module;
+
+    """";
 
 define constant $test-main-code-template
-  = #:string:'Module: %s
+  = #r""""
+    Module: %s
 
-define test test-$greeting ()
-  assert-equal("Hello world!", $greeting);
-end test;
+    define test test-$greeting ()
+      assert-equal("Hello world!", $greeting);
+    end test;
 
-define test test-greeting ()
-  assert-equal("Hello world!", greeting());
-end test;
+    define test test-greeting ()
+      assert-equal("Hello world!", greeting());
+    end test;
 
-// Use `_build/bin/%s-test-suite --help` to see options.
-run-test-application()
-';
+    // Use `_build/bin/%s-test-suite --help` to see options.
+    run-test-application()
+
+    """";
 
 // TODO: We don't have enough info to fill in "location" here. Since this will
 // be an active package, location shouldn't be needed until the package is
 // published in the catalog, at which time the user should be gently informed.
 define constant $dylan-package-file-template
-  = #:string:'{
-    "dependencies": [ %s ],
-    "dev-dependencies": [ %s ],
-    "description": "YOUR DESCRIPTION HERE",
-    "name": %=,
-    "version": "0.1.0",
-    "url": "https://github.com/%s/%s",
-    "keywords": [ ],
-    "contact": "https://github.com/%s/%s/issues",
-    "license": "",
-    "license-url": ""
-}
-';
+  = #r""""
+    {
+        "dependencies": [ %s ],
+        "dev-dependencies": [ %s ],
+        "description": "YOUR DESCRIPTION HERE",
+        "name": %=,
+        "version": "0.1.0",
+        "url": "https://github.com/%s/%s",
+        "keywords": [ ],
+        "contact": "https://github.com/%s/%s/issues",
+        "license": "",
+        "license-url": ""
+    }
+
+    """";
+
+define constant $makefile-template
+  = #r"""
+    DYLAN ?= $${HOME}/dylan
+
+    .PHONY: build install test dist clean distclean
+
+    build:
+            deft update
+            deft build %s
+
+    install: build
+            mkdir -p $(DYLAN)/bin
+            mkdir -p $(DYLAN)/install/%s/bin
+            mkdir -p $(DYLAN)/install/%s/lib
+            cp _build/bin/%s $(DYLAN)/install/%s/bin/%s
+            cp -r _build/lib/lib* $(DYLAN)/install/%s/lib/
+            ln -s -f $$(realpath $(DYLAN)/install/%s/bin/%s) $(DYLAN)/bin/%s
+
+    test:
+            deft update
+            deft test
+
+    dist: distclean install
+
+    clean:
+            rm -rf _packages
+            rm -rf registry
+            rm -rf _build
+            rm -rf _test
+            rm -rf *~
+
+    distclean: clean
+            rm -rf $(DYLAN)/install/%s
+            rm -f $(DYLAN)/bin/%s
+
+    """;
 
 
 define class <template> (<object>)
@@ -603,41 +662,3 @@ define function parse-dep-specs
          end,
          specs)
 end function;
-
-// This is at the end of the file until we can use multi-line string syntax (i.e., a
-// release after 2024.1) because it breaks dylan-mode code hightlighting.
-define constant $makefile-template
-  = #:string:[
-DYLAN	?= $${HOME}/dylan
-
-.PHONY: build install test dist clean distclean
-
-build:
-	deft update
-	deft build %s
-
-install: build
-	mkdir -p $(DYLAN)/bin
-	mkdir -p $(DYLAN)/install/%s/bin
-	mkdir -p $(DYLAN)/install/%s/lib
-	cp _build/bin/%s $(DYLAN)/install/%s/bin/%s
-	cp -r _build/lib/lib* $(DYLAN)/install/%s/lib/
-	ln -s -f $$(realpath $(DYLAN)/install/%s/bin/%s) $(DYLAN)/bin/%s
-
-test:
-	deft update
-	deft test
-
-dist: distclean install
-
-clean:
-	rm -rf _packages
-	rm -rf registry
-	rm -rf _build
-	rm -rf _test
-	rm -rf *~
-
-distclean: clean
-	rm -rf $(DYLAN)/install/%s
-	rm -f $(DYLAN)/bin/%s
-];
